@@ -1,0 +1,230 @@
+<!DOCTYPE HTML PUBLIC “-//W3C//DTD HTML 4.0 Transitional//EN”>
+<HTML>
+<HEAD><TITLE>twist 键盘按键控制</TITLE>
+<META NAME="Generator" CONTENT="EditPlus">
+<META NAME="Author" CONTENT="">
+<META NAME="Keywords" CONTENT="js 按键记录">
+<META NAME="Description" CONTENT="js 按键记录">
+</HEAD>
+<BODY>
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script src="../js/mqttws31.js"></script>
+<script type="text/javascript ">
+<!--
+var keystring = "";//记录按键的字符串
+var current = "";
+var linear_velocity=0.1 ,ang_velocity=0.1;
+function $(s)
+{
+   return document.getElementById(s)?document.getElementById(s):s;
+}
+
+function keypress(e)
+{
+   var currKey=0,CapsLock=0,e=e||event;
+   currKey=e.keyCode||e.which||e.charCode;
+   CapsLock=currKey>=65&&currKey<=90;
+   switch (currKey)
+   {
+   //屏蔽了退格、制表、回车、空格、方向键、删除键
+   case 8: case 9:case 13:case 32:case 37:case 38:case 39:case 40:case 46:
+
+            keyName = ""; break;
+   default :keyName = String.fromCharCode(currKey); break;
+   }
+   //keystring += keyName;
+}
+
+function keydown(e)
+{
+   var e = e||event;
+   var currKey = e.keyCode||e.which||e.charCode;
+  // if ((currKey>7&&currKey<14)||(currKey>31&&currKey<47))
+   {
+       switch (currKey)
+       {
+       case 8: keyName = "[退格]"; break;
+       case 9: keyName = "[制表]"; break;
+       case 13:keyName = "[回车]"; break;
+       case 32:keyName = "[空格]"; break;
+       case 33:keyName = "[PageUp]";   break;
+       case 34:keyName = "[PageDown]";   break;
+       case 35:keyName = "[End]";   break;
+       case 36:keyName = "[Home]";   break;
+       case 37:
+	   send_x_y(0.0,ang_velocity);
+	   keyName = "方向左 ";   break;
+       case 38:keyName = "前进 ";  
+		send_x_y(0-linear_velocity,0.0);	   break;
+       case 39:keyName = "方向右 ";  
+	   send_x_y(0.0,0-ang_velocity);
+	   break;
+       case 40:keyName = "方向键下 "; 
+		send_x_y(linear_velocity,0.0);	   break;
+       case 46:keyName = "[删除]";   break;
+	   case 67://角速度 c
+	   ang_velocity=ang_velocity-ang_velocity*0.1 ;
+	   ang_velocity = Math.floor(ang_velocity * 100) / 100;
+	   keyName = "角速度:"+ang_velocity+';<br/>  ';  
+	    console.log(ang_velocity);
+	   break;
+	   case 69://角速度 e
+	   ang_velocity=ang_velocity+ang_velocity*0.1 ;
+	   ang_velocity = Math.floor(ang_velocity * 100) / 100;
+	   keyName = "角速度:"+ang_velocity+';<br/>  '; 
+       console.log(ang_velocity);	   
+	   break;
+	   case 81:linear_velocity= (linear_velocity+linear_velocity*0.1);
+	   //linear_velocity = linear_velocity.toFixed(2);
+	   linear_velocity = Math.floor(linear_velocity * 100) / 100;
+	   ang_velocity=ang_velocity+ang_velocity*0.1 ;
+	   ang_velocity = Math.floor(ang_velocity * 100) / 100;
+	   keyName = "线速度:"+linear_velocity+" "+"角速度:"+ang_velocity+';<br/>  ';   break;
+	   //线速度 87-w 88-x
+	   case 87:linear_velocity= (linear_velocity+linear_velocity*0.1);
+	   linear_velocity = Math.floor(linear_velocity * 100) / 100;
+	   keyName = "线速度:"+linear_velocity+';<br/>';   break;
+	   case 88:linear_velocity= (linear_velocity-linear_velocity*0.1);
+	   linear_velocity = Math.floor(linear_velocity * 100) / 100;
+	   keyName = "线速度:"+linear_velocity+';<br/> ';   break;
+	   case 90:linear_velocity= (linear_velocity-linear_velocity*0.1);
+	   //linear_velocity = linear_velocity.toFixed(2);
+	   linear_velocity = Math.floor(linear_velocity * 100) / 100;
+	   ang_velocity=ang_velocity-ang_velocity*0.1 ;
+	   ang_velocity = Math.floor(ang_velocity * 100) / 100;
+	   keyName = "线速度:"+linear_velocity+" "+"角速度:"+ang_velocity+';<br/> ';  
+	  
+	   break;
+       default : keyName = "";    break;
+       }
+	   current = "线速度:"+linear_velocity+" "+"角速度:"+ang_velocity+';<br/> ';
+       keystring = keyName;
+   }
+   $("content").innerHTML=keystring;
+   $("current").innerHTML=current;
+}
+
+function keyup(e)
+{
+   $("content").innerHTML=keystring;
+}
+
+//document.onkeypress = keypress;
+document.onkeydown = keydown;
+document.onkeyup = keyup;
+
+var hostname = 'www.woyilian.com', //'192.168.1.2',
+	devid =111111,
+	port = 8083,
+	clientId = 'client-mao2180',
+	timeout = 5,
+	keepAlive = 50,
+	cleanSession = false,
+	ssl = false,
+	topic = '/state/gps';
+	var isvalid =0;
+	//   topic = '1110000001001001/state/gps';
+	var urlPath = window.document.location.href;
+	var docPath = window.document.location.pathname; //文件在服务器相对地址 /ISV/demo.aspx
+	var index = urlPath.indexOf(docPath);
+	var serverPath = urlPath.substring(0, index);
+	var serverip = serverPath.substring(7);
+	console.log(serverip);
+		 MQTTconnect();
+		function MQTTconnect(){
+			//devid =document.getElementById("devid").value;
+			topic =  '/cmd/vel';
+			console.log(topic);
+			client = new Paho.MQTT.Client('192.168.31.135', Number(port), clientId);
+			client.onConnectionLost = onConnectionLost;//注册连接断开处理事件
+			client.onMessageArrived = onMessageArrived;//注册消息接收处理事件
+			client.connect({onSuccess:onConnect});//连接服务器并注册连接成功处理事件
+		};
+
+		function onConnect() {
+		  // Once a connection has been made, make a subscription and send a message.
+		  console.log("onConnect:"+topic);
+		  client.subscribe(topic);
+		
+		};
+		function onConnectionLost(responseObject) {
+		  
+		  if (responseObject.errorCode !== 0)
+			console.log("onConnectionLost:"+responseObject.errorMessage);
+			console.log("连接已断开");
+		};
+		function onMessageArrived(message) {
+	
+			//console.log("收到消息:"+message.payloadString);
+			//console.log("主题："+message.destinationName);
+			//console.log("长度："+strlen(message.payloadString));
+			if(strlen(message.payloadString)>60)
+			{
+			//  heading.update(headingI);//0~360 00
+			   var temp1 = jQuery.parseJSON(message.payloadString);
+
+				//console.log("解析出来的："+temp1.mx); 
+			//	console.log("解析出来的：lati："+temp1.my);
+				heading = Math.atan2(temp1.my,temp1.mx)*180/3.1415;
+				if(heading<0)heading=heading+360;
+				console.log("解析出来的heading："+heading);
+				// throttle(deviceOrientationListener, 3, 3);
+				deviceOrientationListener();
+				//lonti = temp1.lonti ;
+			
+			}
+	
+		};
+		
+	function send_x_y(velocity,angle){
+		 console.log("into send message");
+		 
+		 //json对象
+		var jsoninf={"control":"1","vel":"0.1","ang":"0.1"};
+		sendtopic = '/cmd/vel';
+			//可以如下修改firstName属性的值
+		 jsoninf["vel"] = velocity.toFixed(2) +'';
+		 jsoninf["ang"] = angle.toFixed(2) +'';
+						
+		ss = JSON.stringify(jsoninf);
+		console.log(jsoninf);
+		if(ss){
+		   // s = "{time:"+new Date().Format("yyyy-MM-dd hh:mm:ss")+", content:"+(s)+", from: web console}";
+			message = new Paho.MQTT.Message(ss);
+			message.destinationName = sendtopic;
+			client.send(message);
+			   
+		}
+	}
+	  //计算字符串的长度
+	function strlen(str){
+		var len = 0;
+		for (var i=0; i<str.length; i++) { 
+		 var c = str.charCodeAt(i); 
+		//单字节加1 
+		 if ((c >= 0x0001 && c <= 0x007e) || (0xff60<=c && c<=0xff9f)) { 
+		   len++; 
+		 } 
+		 else { 
+		  len+=2; 
+		 } 
+		} 
+		return len;
+	}
+//-->
+</script>
+
+使用介绍<br/>   
+&nbsp &nbsp &nbsp   ↑     <br/>   
+← &nbsp   ↓   &nbsp  →<br/> 
+K—停止<br/> 
+↑←↓→—前、左、后、右<br/> 
+q/z : 最大速度增加/减少10%<br/> 
+w/x : 仅线性速度增加/减少10%<br/> 
+e/c : 仅角速度增加/减少10%<br/> 
+ 
+当前值：<span id="current"></span> <br/>
+键盘响应键值：<span id="content"></span>
+ 
+</BODY>
+</HTML>
