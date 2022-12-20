@@ -14,4 +14,9 @@ easymqOs_base_OdomControl  和底盘stm32通信的节点使用串口和自定义
 轨迹航向显示  
 twist 键盘控制  
 
-
+#  安装使用
+git clone this code 
+将 mqtt的libmosquitto.so 补上并从 IMU node 复制MQtt到每个节点的mqtt路径下（上传时只有IMU上传了，以免重复上传），  
+cd  路径  
+make   
+分别执行对应的程序   
