@@ -4,7 +4,7 @@ easy_mqOS 是我仿照ROS 搭建的基于MQTT的简易机器人分布式开发�
 
 使用发布/订阅消息模式，提供一对多的消息分发，解除应用程序耦合。
 
-###说明
-本工程包括 多个节点
-easymqOs_IMU_node   IMU的发布节点
-easymqOs_base_OdomControl  和底盘stm32通信的节点使用串口和自定义的通信协议 ，包头0xaa 
+#说明
+#本工程包括 多个节点
+#easymqOs_IMU_node   IMU的发布节点
+#easymqOs_base_OdomControl  和底盘stm32通信的节点使用串口和自定义的通信协议 ，包头0xaa 
