@@ -1,0 +1,1 @@
+g++ main.cpp RPLidar.cpp hardwareserial.cpp -I. -o test
