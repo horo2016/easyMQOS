@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>我的位置</title>
+    <meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<style type="text/css">
+		*{
+			margin: auto;
+			background-color: #000000;
+			color: #ffffff;
+		}
+		.info{
+			width: 100%;
+			height: 30px;
+			bottom: 12.5rem;
+			position: fixed;
+			text-align: center;
+		}
+		#compas{
+			font-size: 3.75rem;
+		}
+		.pos{
+			display: flex;
+			text-align: -webkit-center;
+			margin-top: 1rem;
+		}
+		#position{
+			width: 100%;
+			height: 30px;
+			font-size: 1.75rem;
+			margin-top: 0.75rem;
+		}
+	</style>
+</head>
+ 
+<body>
+	<!-- 仪表盘 -->
+    <div id="compass"></div>
+	<div class="info">
+		<!-- 方位信息展示 -->
+		<div id="compas"></div>
+		<!-- 位置信息展示 -->
+		<div class="pos">
+			<div id="lng"></div>
+			<div id="lat"></div>
+		</div>
+		<div id="position"></div>
+	</div>
+	
+	<div id="allmap"></div>
+	
+	<!-- 指南针js
+ <script type="text/javascript" src="./assets/dist/js/raphael.js"></script>
+	-->
+	<script type="text/javascript" src="../js/jquery.min.js"></script>
+ 
+	 <script src="../js/mqttws31.js"></script>
+	<script src="raphael.js "></script>  
+
+    <script type="text/javascript" src="hammer.min.js"></script>
+	<!-- 地图js文件 -->
+	
+    <script>
+        //计算屏幕宽度 高度
+        var pageWidth = window.innerWidth;
+        var pageHeight = window.innerHeight;
+        if (typeof pageWidth != "number") {
+            if (document.compatMode == "CSS1Compat") {
+                pageWidth = document.documentElement.clientWidth;
+                pageHeight = document.documentElement.clientHeight;
+            } else {
+                pageWidth = document.body.clientWidth;
+                pageHeight = document.body.clientHeight;
+            }
+        }
+        var zoom = 1;
+        //compass div 宽高
+        var paperWidth = 300;
+        var paperHeight = 300;
+        var crLong = 130 * zoom;
+        var crShort = 100 * zoom;
+        var cdiff = paperHeight / 2 - crLong;
+        var initX = (pageWidth - paperWidth) > 0 ? (pageWidth - paperWidth) / 2 : 0;
+        var initY = (pageHeight - paperHeight) > 0 ? (pageHeight - paperHeight) / 4 : 0;
+        // document.getElementById("compass").style.marginTop = initY + "px";
+        // document.getElementById("compass").style.marginLeft = initX + "px";
+ 
+        //创建画布
+        var compassPaper = Raphael(initX, initY, paperWidth, paperHeight)
+            //画圆
+        compassPaper.circle(paperWidth / 2, paperHeight / 2, crLong).attr('fill', 'black');
+ 
+        var cross = compassPaper.set()
+        var crossStyle = {
+                stroke: 'white',
+                'stroke-width': 1
+            }
+            //指南针画十字
+        var pathlineX = 'M' + (paperWidth / 2 - crShort / 2) + ' ' + (paperHeight / 2) + 'L' + (paperWidth / 2 + crShort / 2) + ' ' + (paperHeight / 2);
+        var pathlineY = 'M' + (paperWidth / 2) + ' ' + (paperHeight / 2 - crShort / 2) + 'L' + (paperWidth / 2) + ' ' + (paperHeight / 2 + crShort / 2);
+        var northline = 'M' + (paperWidth / 2) + ' ' + (paperHeight / 2 - crShort) + 'L' + (paperWidth / 2) + ' ' + (crLong - crShort);
+        var urlPath = window.document.location.href;
+			 var docPath = window.document.location.pathname; //文件在服务器相对地址 /ISV/demo.aspx
+            var index = urlPath.indexOf(docPath);
+            var serverPath = urlPath.substring(0, index);
+			var serverip = serverPath.substring(7);
+			console.log("termianip:"+serverip);
+			var hostip = "192.168.31.135", port = 8083,client,
+            clientId = 'client-mao21804';
+        cross.push(
+                compassPaper.path(pathlineX).attr(crossStyle),
+                compassPaper.path(pathlineY).attr(crossStyle)
+            )
+            //指北线
+        var northBar = compassPaper.path(northline).attr({
+            stroke: 'white',
+            'stroke-width': 4
+        })
+        var compass = compassPaper.set()
+        var strokeWidth
+        var billet
+        var degText
+        for (var i = 0; i < 360; i = i + 2) {
+            if (i % 30 == 0) {
+                strokeWidth = 2
+                degText = compassPaper.text(paperWidth / 2, (paperHeight / 2 - crShort) * 4 / 5, i).attr({
+                    fill: 'white',
+                    'font-size': '16rem'
+                }).transform('R' + i + ', ' + paperWidth / 2 + ', ' + paperHeight / 2)
+                degText.degPosition = i
+                compass.push(degText)
+            } else {
+                strokeWidth = 1
+            }
+            billet = compassPaper.path('M' + paperWidth / 2 + ' ' + (paperHeight / 2 - crShort) + 'L' + paperWidth / 2 + '  ' + (paperHeight / 2 - crShort + crShort / 5)).attr({
+                stroke: 'white',
+                'stroke-width': strokeWidth
+            }).transform('R' + i + ',' + paperWidth / 2 + ', ' + paperHeight / 2)
+            billet.degPosition = i
+            compass.push(
+                billet
+            );
+        }
+        ['北', '东', '南', '西'].forEach(function(direction, index) {
+            var directionText = compassPaper.text(paperWidth / 2, (paperHeight / 2 - crShort + crShort / 3), direction).attr({
+                fill: 'white',
+                'font-size': '20rem'
+            }).transform('R' + index * 90 + ', ' + (paperWidth / 2) + ',' + paperHeight / 2)
+            directionText.degPosition = index * 90
+            compass.push(directionText)
+        })
+ 
+        var redTriLine = 'M' + (paperWidth / 2) + ' ' + ((paperHeight / 2 - crLong) + cdiff / 2) + ' L' + (paperWidth / 2 - (paperHeight / 2 - crShort) / 4) + ' ' + (paperHeight / 2 - crShort) + ' L' + (paperWidth / 2 + (paperHeight / 2 - crShort) / 4) + ' ' + (paperHeight / 2 - crShort) + 'Z';
+        var redTriangle = compassPaper.path(redTriLine).attr({
+            fill: 'red',
+            'stroke-width': 0
+        })
+        redTriangle.degPosition = 0
+        compass.push(redTriangle)
+ 
+        var alphaText = compassPaper.text((paperWidth / 2), 440, '0°').attr({
+            fill: 'white',
+            'font-size': '30rem'
+        })
+ 
+        function throttle(method, delay, duration) {
+            var timer = null,
+                begin = new Date();
+            return function() {
+                var context = this,
+                    args = arguments,
+                    current = new Date();;
+                clearTimeout(timer);
+                if (current - begin >= duration) {
+                    method.apply(context, args);
+                    begin = current;
+                } else {
+                    timer = setTimeout(function() {
+                        method.apply(context, args);
+                    }, delay);
+                }
+            }
+        }
+ var heading =0;
+        function deviceOrientationListener(event) {
+ 
+            var alpha = heading;//event.webkitCompassHeading || event.alpha;
+            alphaText.attr({
+                text: parseInt(alpha) + '°'
+            });
+            var directionIndex;
+			var pos;
+            if (alpha > 337.5 || alpha < 22.5) {
+                directionIndex = 0;
+				pos="北";
+            } else if (alpha > 45 - 22.5 && alpha < 45 + 22.5) {
+                directionIndex = 1;
+				pos="东北";
+            } else if (alpha > 90 - 22.5 && alpha < 90 + 22.5) {
+                directionIndex = 2;
+				pos="东";
+            } else if (alpha > 135 - 22.5 && alpha < 135 + 22.5) {
+                directionIndex = 3;
+				pos="东南";
+            } else if (alpha > 180 - 22.5 && alpha < 180 + 22.5) {
+                directionIndex = 4;
+				pos="南";
+            } else if (alpha > 225 - 22.5 && alpha < 225 + 22.5) {
+                directionIndex = 5;
+				pos="西南";
+            } else if (alpha > 270 - 22.5 && alpha < 270 + 22.5) {
+                directionIndex = 6;
+				pos="西";
+            } else if (alpha > 315 - 22.5 && alpha < 315 + 22.5) {
+                directionIndex = 7;
+				pos="西北";
+            }
+			var cos=document.getElementById("compas");
+            compass.forEach(function(item) {
+                item.transform('R' + (item.degPosition - alpha) + ',' + (paperWidth / 2) + ', ' + paperHeight / 2)
+            })
+			cos.innerHTML=parseInt(alpha) + '°'+pos
+        }
+       // throttle(deviceOrientationListener, 5, 8);
+        //手机是否支持重力事件
+   /*     if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', throttle(deviceOrientationListener, 3, 3))
+        } else {
+            alert("Sorry your browser doesn't support Device Orientation");
+        }*/
+		//window.addEventListener('deviceorientation', throttle(deviceOrientationListener, 3, 5))
+     
+		 MQTTconnect();
+		function MQTTconnect(){
+			//devid =document.getElementById("devid").value;
+			topic =  '/sensors/imu_node_pub';
+			console.log(topic);
+			
+			
+			client = new Paho.MQTT.Client(hostip, Number(port), clientId);
+			client.onConnectionLost = onConnectionLost;//注册连接断开处理事件
+			client.onMessageArrived = onMessageArrived;//注册消息接收处理事件
+			client.connect({onSuccess:onConnect});//连接服务器并注册连接成功处理事件
+			};
+
+		function onConnect() {
+		  // Once a connection has been made, make a subscription and send a message.
+		  console.log("onConnect:"+topic);
+		 
+		  
+		  client.subscribe(topic);
+		
+		};
+		function onConnectionLost(responseObject) {
+		  
+		  if (responseObject.errorCode !== 0)
+			console.log("onConnectionLost:"+responseObject.errorMessage);
+			console.log("连接已断开");
+		};
+		function onMessageArrived(message) {
+	
+		console.log("收到消息:"+message.payloadString);
+		//console.log("主题："+message.destinationName);
+		//console.log("长度："+strlen(message.payloadString));
+		if(strlen(message.payloadString)>60)
+		{
+		//  heading.update(headingI);//0~360 00
+		   var temp1 = jQuery.parseJSON(message.payloadString);
+
+			//console.log("解析出来的："+temp1.mx); 
+		//	console.log("解析出来的：lati："+temp1.my);
+		    heading = Math.atan2(temp1.my,temp1.mx)*180/3.1415;
+			if(heading<0)heading=heading+360;
+			console.log("解析出来的heading："+heading);
+			// throttle(deviceOrientationListener, 3, 3);
+			deviceOrientationListener();
+			/*lonti = temp1.lonti ;
+			lati = temp1.lati;
+			gpsheading=temp1.gpsheading;
+			gpsvelocity =temp1.gpsvelocity;
+			IMUheading =temp1.heading;
+			roll = temp1.roll;
+			pitch =temp1.pitch;
+			cpuload =temp1.cpuload;
+			cputemp = temp1.cputemp;
+			fusionheading = temp1.fusionheading;
+			//wifisignal =temp1.wifisignal;
+			//velspeed = speedI =temp1.velspeed/10;
+			//angspeed = temp1.angspeed;
+			
+			$('#IMUheading').innerHTML(IMUheading);
+			
+			$('#cputem').innerHTML(cputemp);
+			$('#cpuload').innerHTML(cpuload);
+			$('#gpsvelocity').innerHTML(gpsvelocity);
+			$('#angspeed').innerHTML(angspeed);
+			$('#heading').innerHTML(fusionheading);
+*/
+		
+		
+		}
+		
+	
+	};
+	  //计算字符串的长度
+	function strlen(str){
+		var len = 0;
+		for (var i=0; i<str.length; i++) { 
+		 var c = str.charCodeAt(i); 
+		//单字节加1 
+		 if ((c >= 0x0001 && c <= 0x007e) || (0xff60<=c && c<=0xff9f)) { 
+		   len++; 
+		 } 
+		 else { 
+		  len+=2; 
+		 } 
+		} 
+		return len;
+	}
+    </script>
+</body>
+ 
+</html>
