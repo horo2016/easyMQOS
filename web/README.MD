@@ -4,6 +4,10 @@
 浏览器打开后才能正常连接。
 
 目前能用的功能有  
-指南针功能  
+# 指南针功能  
 ![compass](https://pic2.zhimg.com/v2-b5a9d596113bdbfc3550533f12df0295_r.jpg)  
+# 路径和航向显示 trajectorymap
+![trajectorymap](https://pic3.zhimg.com/v2-84c0dfa714909f703525771918b2e64e_r.jpg)  
+#  twist 键盘控制功能
+
 
