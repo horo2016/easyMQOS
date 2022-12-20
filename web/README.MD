@@ -5,4 +5,4 @@
 
 目前能用的功能有  
 指南针功能  
-[image]!https://pic2.zhimg.com/80/v2-b5a9d596113bdbfc3550533f12df0295_720w.webp
+![image]https://pic2.zhimg.com/80/v2-b5a9d596113bdbfc3550533f12df0295_720w.webp
