@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script src="lws-common.js"></script>
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script src="../js/mqttws31.js"></script>
+<title>Pulurobot Webclient Prototype</title>
+</head>
+
+<body>
+<article>
+
+
+<table>
+<tr>
+<td style="width:1010px"><canvas id="map_canvas" width="1000" height="800" style="border:1px solid #000000;"></canvas></td>
+<td style="width:200px">
+	<input type=button id=route value="Route there" style="visibility:hidden"><br>
+	<input type=button id=direct_fwd value="Direct forward" style="visibility:hidden"><br>
+	<input type=button id=direct_back value="Direct reverse" style="visibility:hidden"><br>
+	<input type=button id=rotate value="Rotate towards" style="visibility:hidden"><br>
+	<br>
+	<input type=button id=charger value="Go to charger"><br>
+	<input type=button id=estop value="STOP!!!"><br>
+	<input type=button id=redraw value="Redraw"><br>
+	<input type=button id=zoom_out value="Zoom out"><br>
+	<input type=button id=zoom_in value="Zoom in"><br><br>
+	<div id=bat_status>...</div><br>
+	<div id=status>...</div><br>
+</td>
+</tr>
+</table>
+
+dbg: <div id=dbg>...</div><br>
+
+
+ws_url: <div id=ws_url>...</div><br>
+
+<span id=wsdi_status>Websocket connection uninitialized</span>
+<br>
+
+<input type=button id=mode2 value="Autonomous mapping, skip compass"> Make the robot decide where to go.
+<br>
+<input type=button id=mode1 value="User control, with localization/mapping"> Normal operation mode. Stops autonomous decisions.
+<br>
+<input type=button id=mode5 value="Motors disabled, with localization/mapping"> Lets you move the robot freely
+<br>
+<input type=button id=mode6 value="Motors disabled, NO localization/mapping"> Does not mess up the map if the robot is wrongly localized
+<br>
+<br>
+<br>
+<small>
+<input type=button id=mode0 value="Mode0: user control, NO localization/mapping"> 
+<br>
+<input type=button id=mode3 value="Mode3: autonomous mapping, start from compass"> Use this to localize the robot on the map. Let it run for a while, until localized.
+<br>
+<input type=button id=mode4 value="Mode4: DaijuMode">
+</small>
+<br>
+<input type=button id=mode7 value="Program charger location"> Click this after you have put the robot IN the charger, do this once, or everytime the charger is moved.
+<br>
+<br>
+<br>
+<input type=button id=del_maps value="Force map refresh">Refetches all maps from the robot<br>
+<br>
+<input type=button id=restart value="Restart rn1host"> Restarts the robot raspi software<br>
+<input type=button id=update value="Update rn1host from github"> Quits, does a git pull, compiles, and restarts the robot raspi software.<br>
+<input type=button id=quit value="Quit rn1host"> Quits the robot raspi software. You need to manually restart it via ssh, or reboot the robot to get it run again.<br>
+<input type=button id=reflash value="Update firmware(s)"> Place the firmware file(s) on the robot raspi filesystem, in /home/hrst/rn1-tools/main.bin or motcon.bin, then run this. Reflashes & restarts. Creates a log file at rn1-tools/program_log.txt<br>
+<input type=button id=raspi_reboot value="Reboot the robot computer"> Runs <i>shutdown -r now</i> on the robot Raspi<br>
+<input type=button id=raspi_shdn value="Shutdown the robot computer"> Runs <i>shutdown -h now</i> on the robot Raspi - do this before switching off the power to avoid filesystem corruption<br>
+<br>
+
+
+<br>
+<table border="1">
+<tr><td><center><big><b>Manual control</b></big></center></td></tr>
+<tr><td><center><small>For resolving problems, FWD/BACK 10 cm per click, LEFT/RIGHT 10 deg per click.</small></center></td></tr>
+<tr><td><center>
+<table border="0">
+<tr><td></td><td><input type=button id=manu_fwd value="FWD"></td><td></td></tr>
+<tr><td><input type=button id=manu_left value="LEFT"></td><td></td><td><input type=button id=manu_right value="RIGHT"></td></tr>
+<tr><td></td><td><input type=button id=manu_back value="BACK"></td><td></td></tr>
+</table></center>
+</td></tr>
+</table>
+
+</article>
+
+<script nonce="lwscaro">
+
+/*
+	PULUROBOT RN1-SERVER  Web server and UI prototype
+
+	(c) 2017-2018 Pulu Robotics and other contributors
+	Maintainer: Antti Alhonen <antti.alhonen@iki.fi>
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License version 2, as 
+	published by the Free Software Foundation.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	GNU General Public License version 2 is supplied in file LICENSING.
+
+
+
+	NOTE: This program is to be replaced with a proper implementation.
+	Works as a "living use case document", or "proof of concept", or
+	"minimum viable product", whichever you want to call it.
+
+*/
+
+
+document.getElementById('charger').onclick = charger;
+document.getElementById('mode0').onclick = mode0;
+document.getElementById('mode1').onclick = mode1;
+document.getElementById('mode2').onclick = mode2;
+document.getElementById('mode3').onclick = mode3;
+document.getElementById('mode4').onclick = mode4;
+document.getElementById('mode5').onclick = mode5;
+document.getElementById('mode6').onclick = mode6;
+document.getElementById('mode7').onclick = mode7;
+document.getElementById('estop').onclick = mode5;
+
+document.getElementById('manu_fwd').onclick = manu_fwd;
+document.getElementById('manu_back').onclick = manu_back;
+document.getElementById('manu_left').onclick = manu_left;
+document.getElementById('manu_right').onclick = manu_right;
+
+document.getElementById('route').onclick = do_route;
+document.getElementById('direct_fwd').onclick = do_direct_fwd;
+document.getElementById('direct_back').onclick = do_direct_back;
+document.getElementById('rotate').onclick = do_rotate;
+
+
+document.getElementById('redraw').onclick = redraw;
+document.getElementById('zoom_out').onclick = do_zoom_out;
+document.getElementById('zoom_in').onclick = do_zoom_in;
+
+document.getElementById('restart').onclick = rn1host_restart;
+document.getElementById('update').onclick = rn1host_update;
+document.getElementById('quit').onclick = rn1host_quit;
+document.getElementById('reflash').onclick = rn1host_reflash;
+document.getElementById('raspi_reboot').onclick = rn1host_reboot_raspi;
+document.getElementById('raspi_shdn').onclick = rn1host_shdn_raspi;
+
+document.getElementById('del_maps').onclick = do_del_maps;
+
+/*
+ * We display untrusted stuff in html context... reject anything
+ * that has HTML stuff in it
+ */
+
+function san(s)
+{
+	if (s.search("<") != -1)
+		return "invalid string";
+	
+	return s;
+}
+
+
+function get_appropriate_ws_url()
+{
+	var pcol;
+	var u = document.URL;
+    console.log(u);
+	if (u.substring(0, 5) == "https") {
+		pcol = "wss://";
+		u = u.substr(8);
+	} else {
+		pcol = "ws://";
+		if (u.substring(0, 4) == "http")
+			u = u.substr(7);
+	}
+
+	u = u.split('/');
+
+	return pcol + u[0] ;
+	//return "ws://47.104.140.197" ;
+}
+
+/*
+function get_appropriate_ws_url()
+{
+	return "wss://ojabotti.ha.fi:33333/xxx";
+}
+*/
+//document.getElementById("ws_url").textContent = get_appropriate_ws_url();
+	
+
+var canv = document.getElementById("map_canvas");
+var ct = canv.getContext("2d");
+var canv_w=canv.width;
+var canv_h=canv.height;
+
+var view_start_x = -3000;
+var view_start_y = -3000;
+var mm_per_pixel = 10.0;//一个小像素10mm
+
+var drag_start_x = 0.0;
+var drag_start_y = 0.0;
+
+var cur_angle = 0;
+var cur_x = 0;
+var cur_y = 0;
+
+function update_view()
+{
+	var view_end_x = view_start_x + canv_w*mm_per_pixel;
+	var view_end_y = view_start_y + canv_h*mm_per_pixel;
+
+	var buffer = new ArrayBuffer(17);
+
+	new DataView(buffer).setUint8(0, 1);
+	new DataView(buffer).setInt32(1, view_start_x, false);
+	new DataView(buffer).setInt32(5, view_start_y, false);
+	new DataView(buffer).setInt32(9, view_end_x, false);
+	new DataView(buffer).setInt32(13, view_end_y, false);
+
+	var view_blob = new Blob([buffer], {type: "application/octet-stream"});
+	socket_di.send(view_blob);
+}
+
+function scroll_view(x, y)
+{
+//	view_start_x -= x*mm_per_pixel;
+//	view_start_y -= y*mm_per_pixel;
+
+	update_view();
+	draw_world();
+}
+
+var click_active = 0;
+var click_x_mm = 0;
+var click_y_mm = 0;
+
+function activate_click()
+{
+	click_active = 1;
+	document.getElementById("route").style.visibility = "visible";
+	document.getElementById("direct_fwd").style.visibility = "visible";
+	document.getElementById("direct_back").style.visibility = "visible";
+	document.getElementById("rotate").style.visibility = "visible";
+	draw_world();
+}
+
+function deactivate_click()
+{
+	click_active = 0;
+	document.getElementById("route").style.visibility = "hidden";
+	document.getElementById("direct_fwd").style.visibility = "hidden";
+	document.getElementById("direct_back").style.visibility = "hidden";
+	document.getElementById("rotate").style.visibility = "hidden";
+	draw_world();
+}
+
+function handle_click(xpix, ypix)
+{
+	click_x_mm = xpix * mm_per_pixel + view_start_x;
+	click_y_mm = ypix * mm_per_pixel + view_start_y;
+	activate_click();
+}
+
+function do_route()
+{
+	var buffer = new ArrayBuffer(10);
+
+	new DataView(buffer).setUint8(0, 2);
+	new DataView(buffer).setInt32(1, click_x_mm, false);
+	new DataView(buffer).setInt32(5, click_y_mm, false);
+	new DataView(buffer).setUint8(9, 0);
+	var view_blob = new Blob([buffer], {type: "application/octet-stream"});
+	socket_di.send(view_blob);
+	deactivate_click();
+}
+
+function do_direct_fwd()  {do_dest(0);}
+function do_direct_back() {do_dest(1);}
+function do_rotate()      {do_dest(8);}
+
+function do_dest(m)
+{
+	var buffer = new ArrayBuffer(10);
+
+	new DataView(buffer).setUint8(0, 7);
+	new DataView(buffer).setInt32(1, click_x_mm, false);
+	new DataView(buffer).setInt32(5, click_y_mm, false);
+	new DataView(buffer).setUint8(9, m);
+	var view_blob = new Blob([buffer], {type: "application/octet-stream"});
+	socket_di.send(view_blob);
+	deactivate_click();
+}
+
+function charger()
+{
+	var buffer = new ArrayBuffer(1);
+	new DataView(buffer).setUint8(0, 3);
+	var view_blob = new Blob([buffer], {type: "application/octet-stream"});
+	socket_di.send(view_blob);
+}
+
+function rn1host_restart() {restart_msg(1);}
+function rn1host_quit()    {restart_msg(5);}
+function rn1host_update()  {restart_msg(6);}
+function rn1host_reflash() {restart_msg(10);}
+function rn1host_reboot_raspi() {restart_msg(135);}
+function rn1host_shdn_raspi()   {restart_msg(136);}
+
+function restart_msg(m)
+{
+	var buffer = new ArrayBuffer(2);
+	new DataView(buffer).setUint8(0, 6);
+	new DataView(buffer).setUint8(1, m);
+	var view_blob = new Blob([buffer], {type: "application/octet-stream"});
+	socket_di.send(view_blob);
+}
+
+function mode0() { mode(0); }
+function mode1() { mode(1); }
+function mode2() { mode(2); }
+function mode3() { mode(3); }
+function mode4() { mode(4); }
+function mode5() { mode(5); }
+function mode6() { mode(6); }
+function mode7() { mode(7); }
+
+function manu_fwd() { manu(10); }
+function manu_back() { manu(11); }
+function manu_left() { manu(12); }
+function manu_right() { manu(13); }
+
+function mode(m)
+{
+	var buffer = new ArrayBuffer(2);
+	new DataView(buffer).setUint8(0, 4);
+	new DataView(buffer).setUint8(1, m);
+	var view_blob = new Blob([buffer], {type: "application/octet-stream"});
+	socket_di.send(view_blob);
+}
+
+function manu(m)
+{
+	var buffer = new ArrayBuffer(2);
+	new DataView(buffer).setUint8(0, 5);
+	new DataView(buffer).setUint8(1, m);
+	var view_blob = new Blob([buffer], {type: "application/octet-stream"});
+	socket_di.send(view_blob);
+}
+
+
+var isDragging=false;
+
+$(function()
+{
+	function handleMouseDown(e)
+	{
+		var rect = canv.getBoundingClientRect();
+		drag_start_x=parseInt(e.clientX-rect.left);
+		view_x_at_drag_start = view_start_x;
+		view_y_at_drag_start = view_start_y;
+		drag_start_y=parseInt(e.clientY-rect.top);
+		isDragging=true;
+	}
+
+	function handleMouseUp(e)
+	{
+		if(isDragging)
+		{
+			isDragging=false;
+
+			var rect = canv.getBoundingClientRect();
+			canMouseX=parseInt(e.clientX-rect.left);
+			canMouseY=parseInt(e.clientY-rect.top);
+			drag_x=canMouseX - drag_start_x;
+			drag_y=canMouseY - drag_start_y;
+
+			if(drag_x > -5 && drag_x < 5 && drag_y > -5 && drag_y < 5)
+			{
+				handle_click(canMouseX, canMouseY);
+			}
+			else
+			{
+				scroll_view(drag_x, drag_y);
+			}
+		}
+	}
+
+	function handleMouseOut(e)
+	{
+		handleMouseUp(e);
+	}
+
+	function handleMouseMove(e)
+	{
+		if(isDragging)//一直按着
+		{
+			var rect = canv.getBoundingClientRect();
+			drag_x=parseInt(e.clientX-rect.left) - drag_start_x;
+			drag_y=parseInt(e.clientY-rect.top) - drag_start_y;
+
+			view_start_x = view_x_at_drag_start - drag_x*mm_per_pixel;
+			view_start_y = view_y_at_drag_start - drag_y*mm_per_pixel;
+
+			draw_world();
+
+		}
+	}
+
+	$("#map_canvas").mousedown(function(e){handleMouseDown(e);});
+	$("#map_canvas").mousemove(function(e){handleMouseMove(e);});
+	$("#map_canvas").mouseup(function(e){handleMouseUp(e);});
+	$("#map_canvas").mouseout(function(e){handleMouseOut(e);});
+});
+
+
+function do_zoom_out()
+{
+	mm_per_pixel *= 1.4;
+	ct.clearRect(0, 0, canv_w, canv_h);
+	draw_world();
+	update_view();
+}
+
+function do_zoom_in()
+{
+	mm_per_pixel *= 0.7;
+	ct.clearRect(0, 0, canv_w, canv_h);
+	draw_world();
+	update_view();
+}
+
+var socket_di;
+/*
+if (typeof MozWebSocket != "undefined") {
+	socket_di = new MozWebSocket(get_appropriate_ws_url(),
+			   "rn1-protocol");
+} else {
+	socket_di = new WebSocket(get_appropriate_ws_url(),
+			   "rn1-protocol");
+}
+*/
+var world = new Map();
+
+
+function do_del_maps()
+{
+	var buffer = new ArrayBuffer(1);
+
+	new DataView(buffer).setUint8(0, 8);
+	var view_blob = new Blob([buffer], {type: "application/octet-stream"});
+	socket_di.send(view_blob);
+	deactivate_click();
+	world = new Map();
+	draw_world();
+}
+
+
+function draw_robot(ang, x, y)
+{
+
+}
+
+//
+//    0             1
+//                  
+//                  2
+//           M  O     3
+//                  4
+//               
+//    6             5
+//
+
+var route_len = 0;
+var route_start = []; 
+var route = [];
+var points =[[0,0]];
+var last_lidar_len = 0;
+var last_lidar;
+var last_robot_x=0;
+var last_robot_y=0;
+
+var robot_shape = [
+	[-500,-240],
+	[ 150,-240],
+	[ 150,-100],
+	[ 250,   0],
+	[ 150, 100],
+	[ 150, 240],
+	[-500, 240]
+];
+var origin = {
+	x:cur_x,
+	y:cur_y
+}
+function set_robot_size(xs, ys, origin_xoffs, origin_yoffs)
+{
+	// x coords
+	robot_shape[0][0] = robot_shape[6][0] = -1*(xs/2+origin_xoffs);
+	robot_shape[1][0] = robot_shape[2][0] = robot_shape[4][0] = robot_shape[5][0] = xs/2-origin_xoffs;
+	robot_shape[3][0] = robot_shape[2][0] + 100;
+
+	// y coords
+	robot_shape[0][1] = robot_shape[1][1] = -1*(ys/2+origin_yoffs);
+	robot_shape[5][1] = robot_shape[6][1] = ys/2-origin_yoffs;
+	robot_shape[2][1] = -1*origin_yoffs - 50;
+	robot_shape[3][1] = -1*origin_yoffs;
+	robot_shape[4][1] = -1*origin_yoffs + 50;
+}
+
+function draw_world()
+{
+	ct.clearRect(0, 0, canv_w, canv_h);
+
+	for(var [key,img] of world)
+	{
+		var img_x = (key[0] - view_start_x) / mm_per_pixel;
+		var img_y = (key[1] - view_start_y) / mm_per_pixel;
+
+		//console.log("x=" + key[0] + " y=" + key[1] + " --> " + img_x + "," + img_y + " is " + img);
+
+		// let drawImage handle out-of-bounds coordinates, just try to draw everything
+		ct.drawImage(img, img_x, img_y, (256*40)/mm_per_pixel, (256*40)/mm_per_pixel);
+	}
+
+
+	// Draw the robot
+
+	var robot_x_pix = (cur_x - view_start_x) / mm_per_pixel;
+	var robot_y_pix = (cur_y - view_start_y) / mm_per_pixel;
+
+
+	ct.save();
+	ct.translate(robot_x_pix, robot_y_pix);
+	ct.rotate(cur_angle);
+	ct.beginPath();
+	ct.moveTo(robot_shape[0][0]/mm_per_pixel, robot_shape[0][1]/mm_per_pixel);
+	for(var i=0; i<7; i++)
+	{
+		ct.lineTo(robot_shape[i][0]/mm_per_pixel, robot_shape[i][1]/mm_per_pixel);
+	}
+	ct.closePath();
+	ct.fillStyle = "#C07040A0";
+	ct.fill();
+	ct.restore();
+
+	if(route_len > 0)
+	{
+
+		ct.beginPath();
+		ct.moveTo((route_start[0] - view_start_x) / mm_per_pixel, (route_start[1] - view_start_y) / mm_per_pixel);
+		for(i = 0; i < route_len; i++)
+		{
+			ct.lineWidth = 3;
+			if(route[i][2] > 0)
+				ct.strokeStyle = "#C00000B0";
+			else
+				ct.strokeStyle = "#00C030B0";
+
+			ct.lineTo((route[i][0] - view_start_x) / mm_per_pixel, (route[i][1] - view_start_y) / mm_per_pixel);
+			ct.stroke();
+			if(i < route_len-1)
+			{
+				ct.beginPath();
+				ct.moveTo((route[i][0] - view_start_x) / mm_per_pixel, (route[i][1] - view_start_y) / mm_per_pixel);
+			}
+		}
+	}
+
+	for(i = 0; i < last_lidar_len; i++)
+	{
+		ct.fillStyle = "red";
+		ct.fillRect((last_lidar[i][0]-view_start_x)/ mm_per_pixel -1, (last_lidar[i][1]-view_start_y)/ mm_per_pixel -1, 2, 2);
+	}
+
+	if(click_active)
+	{
+
+		ct.fillStyle = "#FF7090C0";
+		ct.fillRect((click_x_mm-view_start_x)/mm_per_pixel-5,(click_y_mm-view_start_y)/mm_per_pixel-5, 10, 10);
+
+		ct.beginPath();
+		ct.moveTo((cur_x - view_start_x) / mm_per_pixel, (cur_y - view_start_y) / mm_per_pixel);
+		ct.lineWidth = 6;
+		ct.strokeStyle = "#FF709090";
+		ct.lineTo((click_x_mm - view_start_x) / mm_per_pixel, (click_y_mm - view_start_y) / mm_per_pixel);
+		ct.stroke();
+	}
+	//根据点连线
+    //防止重绘
+   ct.beginPath();
+   //ct.moveTo((last_robot_x - view_start_x) / mm_per_pixel, (last_robot_y - view_start_y) / mm_per_pixel);
+   ct.lineWidth = 2;
+   ct.strokeStyle = "green";
+   points.forEach(function (arr) {
+      ct.lineTo(( arr[0]- view_start_x) / mm_per_pixel ,( arr[1] - view_start_x) / mm_per_pixel  );
+    });
+	ct.stroke();
+}
+
+/*
+try {
+	socket_di.onopen = function() {
+		document.getElementById("wsdi_status").innerHTML =
+			" <b>websocket connection opened</b> " +
+			san(socket_di.extensions);
+	} 
+
+	socket_di.onmessage =function got_packet(msg)
+	{
+		if(msg.data instanceof Blob)
+		{
+			var fileReader = new FileReader();
+			fileReader.onload = function()
+			{ 
+				var arrayBuffer = this.result;
+				var view = new Uint8Array(arrayBuffer.slice(0,3));
+
+				var pay_size = view[1]*256+view[2];
+
+				switch(view[0])
+				{
+					case 200:
+					{
+						var image = new Image();
+						image.onload = function()
+						{
+							draw_world();
+						}
+						image.src = URL.createObjectURL(msg.data.slice(10, msg.data.size, "image/png"));
+						var img_x_mm = (new DataView(arrayBuffer).getInt32(1, false));
+						var img_y_mm = (new DataView(arrayBuffer).getInt32(5, false));
+						var status = (new DataView(arrayBuffer).getUint8(9));
+						image.width = 256;
+						image.height = 256;
+						world.set([img_x_mm, img_y_mm], image);
+						break;
+
+					}
+					case 130:
+					{
+						cur_angle = (new DataView(arrayBuffer.slice(3,5)).getInt16(0, false)) / 65536 * 2 * Math.PI;
+						cur_x = (new DataView(arrayBuffer.slice(5,9)).getInt32(0, false));
+						cur_y = (new DataView(arrayBuffer.slice(9,13)).getInt32(0, false));
+						draw_world();
+					}
+					break;
+
+					case 134:
+					{
+						var flags = (new DataView(arrayBuffer).getUint8(3));
+
+						var str = "";
+						if(flags & 1)
+							str += " CHARGING ";
+						if(flags & 2)
+							str += " FULL ";
+
+						var volts = (new DataView(arrayBuffer).getUint16(4, false));
+						var percentage = (new DataView(arrayBuffer).getUint8(6));
+						var cha_volts = (new DataView(arrayBuffer).getUint16(7, false));
+
+						//document.getElementById("bat_status").textContent = volts/1000 + "V  " + percentage + "% " + str + " charger_in=" cha_volts/1000 + "V";
+					}
+					break;
+
+					case 135:
+					{
+						route_len = (pay_size-8)/9;
+					
+						if(route_len == 0)
+						{
+							document.getElementById("status").textContent = "Sorry, no route found!";
+							break;
+						}
+						document.getElementById("status").textContent = "Following route!";
+
+						route_start = new Array(2);
+						route_start[0] = (new DataView(arrayBuffer).getInt32(3, false));
+						route_start[1] = (new DataView(arrayBuffer).getInt32(7, false));
+
+						route = new Array(route_len);
+						for(i = 0; i < route_len; i++)
+						{
+							route[i] = new Array(3);
+							route[i][2] = (new DataView(arrayBuffer).getUint8(i*9+11));
+							route[i][0] = (new DataView(arrayBuffer).getInt32(i*9+12, false));
+							route[i][1] = (new DataView(arrayBuffer).getInt32(i*9+16, false));
+						}
+
+						draw_world();
+
+					}
+					break;
+
+					case 131:
+					{
+						if(isDragging) break;
+
+						last_lidar_len = (pay_size-10)/2;
+
+						var lidar_robot_angle = (new DataView(arrayBuffer.slice(3,5)).getInt16(0, false)) / 65536 * 360;
+						var lidar_robot_x = (new DataView(arrayBuffer.slice(5,9)).getInt32(0, false));
+						var lidar_robot_y = (new DataView(arrayBuffer.slice(9,13)).getInt32(0, false));
+
+						last_lidar = new Array(last_lidar_len);
+
+						for(i = 0; i < last_lidar_len; i++)
+						{
+							var x = (new DataView(arrayBuffer.slice(13+2*i+0,13+2*i+1)).getInt8(0, false));
+							var y = (new DataView(arrayBuffer.slice(13+2*i+1,13+2*i+2)).getInt8(0, false));
+							last_lidar[i] = new Array(2);
+							last_lidar[i][0] = x*160 + lidar_robot_x;
+							last_lidar[i][1] = y*160 + lidar_robot_y;
+						}
+
+
+					}
+					break;
+
+					default:
+					{
+					}
+
+				}
+
+			};
+			fileReader.readAsArrayBuffer(msg.data);
+
+//				var reader = new FileReader();
+//				reader.addEventListener("loadend", function() {});
+//				reader.readAsArrayBuffer(msg.data);
+			
+		}
+	} 
+
+	socket_di.onclose = function(){
+		document.getElementById("wsdi_status").textContent = " websocket connection CLOSED ";
+	}
+} catch(exception) {
+	alert('<p>Error' + exception);  
+}
+
+var socket_status, jso, s;
+
+if (typeof MozWebSocket != "undefined") {
+	socket_status = new MozWebSocket(get_appropriate_ws_url(),
+			   "lws-status");
+} else {
+	socket_status = new WebSocket(get_appropriate_ws_url(),
+			   "lws-status");
+}
+
+
+try {
+	socket_status.onopen = function() {
+	} 
+
+	socket_status.onmessage =function got_packet(msg) {
+	} 
+
+	socket_status.onclose = function(){
+	}
+} catch(exception) {
+	alert('<p>Error' + exception);  
+}
+
+//function reset() {
+//	socket_di.send("reset\n");
+//}
+
+function redraw()
+{
+	update_view();
+	draw_world();
+}
+
+var socket_ot;
+
+function ot_open() {
+	if (typeof MozWebSocket != "undefined") {
+		socket_ot = new MozWebSocket(get_appropriate_ws_url(),
+				   "rn1-protocol");
+	} else {
+		socket_ot = new WebSocket(get_appropriate_ws_url(),
+				   "rn1-protocol");
+	}
+	try {
+		socket_ot.onopen = function() {
+			document.getElementById("ot_statustd").style.backgroundColor = "#40ff40";
+			document.getElementById("ot_status").innerHTML = " <b>websocket connection opened</b><br>" + san(socket_di.extensions);
+			document.getElementById("ot_open_btn").disabled = true;
+			document.getElementById("ot_close_btn").disabled = false;
+			document.getElementById("ot_req_close_btn").disabled = false;
+		} 
+
+		socket_ot.onclose = function(e){
+			document.getElementById("ot_statustd").style.backgroundColor = "#ff4040";
+			document.getElementById("ot_status").textContent = " websocket connection CLOSED, code: " + e.code +
+			", reason: " + e.reason;
+			document.getElementById("ot_open_btn").disabled = false;
+			document.getElementById("ot_close_btn").disabled = true;
+			document.getElementById("ot_req_close_btn").disabled = true;
+		}
+	} catch(exception) {
+		alert('<p>Error' + exception);  
+	}
+}
+*/
+/* browser will close the ws in a controlled way */
+function ot_close() {
+	socket_ot.close(3000, "Bye!");
+}
+
+/* we ask the server to close the ws in a controlled way */
+function ot_req_close() {
+	socket_ot.send("closeme\n");
+}
+//cur_angle = 100;// / 65536 * 2 * Math.PI;
+//cur_x = 100;
+//cur_y = 100;
+
+
+
+		var urlPath = window.document.location.href;
+		var docPath = window.document.location.pathname; //文件在服务器相对地址 /ISV/demo.aspx
+		var index = urlPath.indexOf(docPath);
+		var serverPath = urlPath.substring(0, index);
+		var serverip = serverPath.substring(7);
+		console.log("termianip:"+serverip);
+		var hostip = "127.0.0.1", port = 8083,client,
+		clientId = 'client-mao21804';
+     
+		 MQTTconnect();
+		function MQTTconnect(){
+			//devid =document.getElementById("devid").value;
+			topic =  '/sensors/odomcombine';
+			console.log(topic);
+			
+			
+			client = new Paho.MQTT.Client(hostip, Number(port), clientId);
+			client.onConnectionLost = onConnectionLost;//注册连接断开处理事件
+			client.onMessageArrived = onMessageArrived;//注册消息接收处理事件
+			client.connect({onSuccess:onConnect});//连接服务器并注册连接成功处理事件
+			};
+
+		function onConnect() {
+		  // Once a connection has been made, make a subscription and send a message.
+		  console.log("onConnect:"+topic);
+		 
+		  
+		  client.subscribe(topic);
+		
+		};
+		function onConnectionLost(responseObject) {
+		  
+		  if (responseObject.errorCode !== 0)
+			console.log("onConnectionLost:"+responseObject.errorMessage);
+			console.log("连接已断开");
+		};
+		function onMessageArrived(message) {
+	
+		//console.log("收到消息:"+message.payloadString);
+		//console.log("主题："+message.destinationName);
+		//console.log("长度："+strlen(message.payloadString));
+		if(strlen(message.payloadString)>60)
+		{
+		//  heading.update(headingI);//0~360 00
+		   var temp1 = jQuery.parseJSON(message.payloadString);
+
+			//console.log("解析出来的："+temp1.mx); 
+		//	console.log("解析出来的：lati："+temp1.my);
+			heading = temp1.pz;
+		    /*heading = Math.atan2(temp1.my,temp1.mx)*180/3.1415;
+			
+			if(heading<0)heading=heading+360;
+			if(heading<100)heading =heading*1.5;
+			else if(heading<140)heading =heading*1.5;
+			else if(heading<150)heading =heading*1.45;
+			else if(heading<160)heading =heading*1.40;
+			else if(heading<170)heading =heading*1.35;
+			else if(heading<180)heading =heading*1.3;
+			else if(heading<190)heading =heading*1.25;
+			else if(heading<200)heading =heading*1.2;
+			else if(heading<210)heading =heading*1.15;
+			else if(heading<220)heading =heading*1.10;
+			else if(heading<230)heading =heading*1.05;
+			else if(heading<240)heading =heading*1.0;
+			
+			
+			
+			if(heading < -180)                   //#Note:numpy and OpenCV X and Y reversed
+				heading = heading + 360 ;
+			else if( heading > 180)
+            heading = heading - 360 ;*/
+			
+			
+			
+			cur_angle =  heading;
+			cur_x = temp1.px *1000;
+            cur_y = temp1.py*1000;
+			points.push([cur_x,cur_y]);
+			console.log("解析出来的heading："+heading*180/3.14+":"+cur_x+":"+cur_y);
+			draw_world();
+			// throttle(deviceOrientationListener, 3, 3);
+			//deviceOrientationListener();
+			/*lonti = temp1.lonti ;
+			lati = temp1.lati;
+			gpsheading=temp1.gpsheading;
+			gpsvelocity =temp1.gpsvelocity;
+			IMUheading =temp1.heading;
+			roll = temp1.roll;
+			pitch =temp1.pitch;
+			cpuload =temp1.cpuload;
+			cputemp = temp1.cputemp;
+			fusionheading = temp1.fusionheading;
+			//wifisignal =temp1.wifisignal;
+			//velspeed = speedI =temp1.velspeed/10;
+			//angspeed = temp1.angspeed;
+			
+			$('#IMUheading').innerHTML(IMUheading);
+			
+			$('#cputem').innerHTML(cputemp);
+			$('#cpuload').innerHTML(cpuload);
+			$('#gpsvelocity').innerHTML(gpsvelocity);
+			$('#angspeed').innerHTML(angspeed);
+			$('#heading').innerHTML(fusionheading);
+*/
+		
+		
+		}
+		
+	
+	};
+	  //计算字符串的长度
+	function strlen(str){
+		var len = 0;
+		for (var i=0; i<str.length; i++) { 
+		 var c = str.charCodeAt(i); 
+		//单字节加1 
+		 if ((c >= 0x0001 && c <= 0x007e) || (0xff60<=c && c<=0xff9f)) { 
+		   len++; 
+		 } 
+		 else { 
+		  len+=2; 
+		 } 
+		} 
+		return len;
+	}
+</script>
+
+</body>
+</html>
