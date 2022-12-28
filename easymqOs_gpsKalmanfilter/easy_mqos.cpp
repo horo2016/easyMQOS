@@ -61,7 +61,7 @@ bool easymqos::Init_Sub(vector<string> _topic )
     cfg->topics = (char **)realloc(cfg->topics, cfg->topic_count*sizeof(char *));
     for(int i =0;i<_topicCnt_sub;i ++)
         cfg->topics[i] =(char*)_topicStr[i].c_str();;
-
+return true;
 }
 bool easymqos::Init_Pub(char* _topic)
 {
@@ -92,6 +92,7 @@ bool easymqos::Set_config_Pub()
 {
  
    cfg->host  = host;
+	 return true;
   
 }
 unsigned int  easymqos::publish_messages(unsigned int len,string message)
