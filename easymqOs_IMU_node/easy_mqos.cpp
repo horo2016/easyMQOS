@@ -61,7 +61,7 @@ bool easymqos::Init_Sub(vector<string> _topic )
     cfg->topics = (char **)realloc(cfg->topics, cfg->topic_count*sizeof(char *));
     for(int i =0;i<_topicCnt_sub;i ++)
         cfg->topics[i] =(char*)_topicStr[i].c_str();;
-
+    return true;
 }
 bool easymqos::Init_Pub(char* _topic)
 {
@@ -69,7 +69,7 @@ bool easymqos::Init_Pub(char* _topic)
 
    // cfg->topic = (char *)realloc(cfg->topic, _topic.size()*sizeof(char));
      cfg->topic =_topic;
-    
+    return true;
    
    
 }
@@ -77,7 +77,7 @@ bool easymqos::Start_Sub()
 {
  
     mainSub(cfg,"12345",my_message_callback);
-
+	return true;
 }
 bool easymqos::Set_config_Pub()
 {
@@ -85,19 +85,19 @@ bool easymqos::Set_config_Pub()
     cout << "1 publicCfg->topic :"<<  cfg->topic<< endl;
      cout << "2publicCfg->host :"<<  cfg->host  << endl;
     mainPub(cfg,"12345");
-    
+    return true;
 }
 
  bool easymqos::Set_broker(char* host)
 {
  
    cfg->host  = host;
-  
+  return true;
 }
 unsigned int  easymqos::publish_messages(unsigned int len,string message)
 {
   publish_message(len,(char *)message.c_str());
-
+  return 1;
 }
 
 bool process_messages = true;
