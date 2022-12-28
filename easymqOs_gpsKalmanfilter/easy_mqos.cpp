@@ -70,14 +70,14 @@ bool easymqos::Init_Pub(char* _topic)
    // cfg->topic = (char *)realloc(cfg->topic, _topic.size()*sizeof(char));
      cfg->topic =_topic;
     
-   
+   return true;
    
 }
 bool easymqos::Start_Sub()
 {
  
     mainSub(cfg,"12345",my_message_callback);
-
+return true;
 }
 bool easymqos::Set_config_Pub()
 {
@@ -85,7 +85,7 @@ bool easymqos::Set_config_Pub()
     cout << "1 publicCfg->topic :"<<  cfg->topic<< endl;
      cout << "2publicCfg->host :"<<  cfg->host  << endl;
     mainPub(cfg,"12345");
-    
+    return true;
 }
 
  bool easymqos::Set_broker(char* host)
