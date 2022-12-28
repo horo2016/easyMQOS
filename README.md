@@ -35,8 +35,7 @@ git clone this code   并查找libmosquitto.so 例如：
 [sudo] password for sunrise:    
 /usr/lib/aarch64-linux-gnu/libmosquitto.so.1   
 '   
-将 mqtt的libmosquitto.so 拷贝到每个节点的Mqtt/lib下，     
-并从 IMU node 复制MQtt到每个节点的mqtt路径下（上传时只有IMU上传了，以免重复上传），  
+将 mqtt的libmosquitto.so 拷贝到每个节点的Mqtt/lib下，         
 cd  路径  
 make   
 分别执行对应的程序   
