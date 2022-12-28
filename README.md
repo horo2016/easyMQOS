@@ -24,6 +24,8 @@ sudo apt-get install mosquitto-clients
 port 1883   
 listener 8083  
 protocol websockets  
+
+下一步  
 git clone this code    
 将 mqtt的libmosquitto.so 补上并从 IMU node 复制MQtt到每个节点的mqtt路径下（上传时只有IMU上传了，以免重复上传），  
 cd  路径  
