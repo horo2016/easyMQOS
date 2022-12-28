@@ -9,7 +9,11 @@ easy_mqOS 是我仿照ROS 搭建的基于MQTT的简易机器人分布式开发�
 每个对应的节点下有对应的说明请仔细阅读  
 ### 本工程终端 的节点  
 easymqOs_IMU_node   IMU的发布节点   
-easymqOs_base_OdomControl  和底盘stm32通信的节点使用串口和自定义的通信协议 ，包头0xaa    
+easymqOs_base_OdomControl  和底盘stm32通信的节点使用串口和自定义的通信协议 ，包头0xaa     
+easymqOs_odom_imu_fusion   多传感器的融合航向角和位移   发布最终的位移和航向角度
+easymqOs_gpsKalmanfilter   gps filter node publish gps node   gps滤波节点并发布  
+easymqOs_lidarA1_node    slamtech lidar a1 publish distance   发布雷达360度的距离  
+easymqos_waypoint_save   receive gps waypoints dats and save 接收规划路径的航点并保存
 ### webjs的节点  
 指南针  
 轨迹航向显示  
