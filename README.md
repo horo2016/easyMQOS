@@ -16,7 +16,15 @@ easymqOs_base_OdomControl  和底盘stm32通信的节点使用串口和自定义
 twist 键盘控制  
 
 #  安装使用
-git clone this code 
+首先在树莓派或者其他的Linux系统安装 mosquito   
+
+sudo apt-get install mosquitto-dev   
+sudo apt-get install mosquitto-clients   
+然后在 /etc/mosquitto/mosquitto.conf 添加支持wensocket的协议和端口   
+port 1883   
+listener 8083  
+protocol websockets  
+git clone this code    
 将 mqtt的libmosquitto.so 补上并从 IMU node 复制MQtt到每个节点的mqtt路径下（上传时只有IMU上传了，以免重复上传），  
 cd  路径  
 make   
