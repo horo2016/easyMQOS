@@ -1,5 +1,17 @@
 #  说明
-该程序配合mqtt使用 请在浏览器打开每个功能模块下的 xx.html 正常使用。  
+该程序配合mqtt使用 ；
+在树莓派或者其他派终端安装mqtt 工具包。  
+
+首先在树莓派或者其他的Linux系统安装 mosquito
+
+sudo apt-get install mosquitto-dev
+sudo apt-get install mosquitto-clients
+然后在 /etc/mosquitto/mosquitto.conf  添加支持wensocket的协议和端口
+port 1883
+listener 8083
+protocol websockets
+
+请在浏览器打开每个功能模块下的 xx.html 正常使用。  
 使用前使用notepad++  编辑xx.html中的hostip 地址改成你的树莓派 或者 orangepi  nanopi的IP地址。保存后使用   
 浏览器打开后才能正常连接。
 
