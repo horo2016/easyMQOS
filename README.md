@@ -21,7 +21,8 @@ easymqos_waypoint_save   receive gps waypoints dats and save 接收规划路径�
 ### webjs的节点  
 指南针  
 轨迹航向显示  
-twist 键盘控制  
+twist 键盘控制      
+baidu map 百度地图定位和路径规划
 
 #  安装使用
 首先在树莓派或者其他的Linux系统安装 mosquito   
