@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <title>户外机器人Vos Web Ground Planner</title>
+    <!--引用百度地图API-->
+  
+	<!--<script type="text/javascript" src="http://api.map.baidu.com/getscript?v=1.4"></script>-->
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=3.0&ak=Epb0QEBjlMeHa0elsCGEQCUsVhpFfWCK"></script>
+
+
+   <style>
+   
+   /* 小屏幕手机端 */
+			@media (min-width: 0px) and (max-width:768px) {
+				.div1{
+					width: 390px ;
+					height: 768px;
+					background-color: white;
+				}
+			}
+			
+			/* 中等屏幕（桌面显示器，大于等于 992px） */
+			@media (min-width: 768px) and (max-width:992px){
+				.div1{
+					width: 768px;
+					height: 992px;
+					font-size:10px;
+					background-color: white;
+				}
+			}
+			@media (min-width: 900px) and (max-width:915px){
+				.div1{
+					width: 914px;
+					height: 412px;
+					background-color: white;
+					font-size:10px;
+				}
+			}
+			/* 大屏幕（大桌面显示器，大于等于 1200px） */
+			@media (min-width: 992px) and (max-width:1200px){
+				.div1{
+					width: 992px;
+					height: 1200px;
+					background-color: white;
+					html.style.fontSize=10px；
+				}
+			}
+	      @media (min-width: 1200px) {
+				.div1{
+					width: 1900px;
+					height: 900px;
+					background-color: white;
+					html.style.fontSize=10px； 
+				}
+			}
+        body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+        }
+		#stick-module,
+        #pedal-module,
+        #collective-module {
+            width: 100%;
+            text-align: center;
+        }
+
+        #cm-svg,
+        #compass-svg,
+        #stick-svg,
+        #pedal-svg,
+        #collective-svg {
+            width: 100%;
+        }
+	    #heading-container {
+            width: 100%;
+			height:100%;
+			
+        }
+	   #speed-container {
+            width: 100%;
+			height:100%;
+			
+        }
+		#horizon-container {
+            width: 100%;
+			height:50%;
+			
+        }
+	   #pedal-container {
+            width: 100%;
+			height:50%;
+			
+        }
+        .row-top {
+            margin-top: 50px;
+        }
+       .container-fluid {
+            margin-top: 50px;
+			
+			
+        }
+        .row-standard {
+            margin-top: 15px;
+			display: inline-block;
+			display: flex;
+           flex-direction: row;
+        }
+
+        .jean-navbar {
+            z-index: 100;
+        }
+
+        h1, h2,h4 {
+            text-align: center;
+            color: #40CAB4;
+            font-weight: bold;
+            font-family: "Calibri";
+        }
+		/*joystic part*/
+		.front {
+		  width: 30%;
+		  height: 30%;
+		  border: none;
+		  background-color: #ddd;
+		  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.3), 0 6px 20px 0 rgba(0,0,0,0.2);
+		  border: 4px solid #aaffff;
+		  color: #aaffff;
+		}
+
+		.back {
+		  background-image: url('./j.png');
+		  background-size: cover;
+		   border: 4px solid #aafefe;
+		}
+		.box {
+		  display: flex;
+		  width: 100%;
+		  background-color: #444;
+		  
+		}
+		#joystic_div {
+		  position: absolute;
+		  top: 65%;
+		  display:block;
+		  width: 200px;
+		  height: 200px;
+		  background-color: #282035;
+		  border-radius: 50%;
+		  margin-left: 80%;
+		}
+		#joystic_div1{
+		float: center;
+		position: absolute;
+		top: 50px;
+		width: 100px;
+		height: 100px;
+		text-align: center;
+		z-index: 100;
+		display:none;
+		padding: 10px;
+		background: rgba(125, 00, 125, 0.2);
+		line-height: 1;
+		border-radius: 50%;
+		margin-left: 0%;
+		 margin-left: -150px;
+		}
+		/*******/
+	 #indicator_table{
+		float: center;
+		position: absolute;
+		top: 50px;
+		width: 300px;
+		height: 100px;
+		text-align: center;
+		z-index: 100;
+		display:none;
+		padding: 10px;
+		background: rgba(125, 00, 125, 0.2);
+		line-height: 1;
+		border-radius: 5px;
+		margin-left: 0%;
+		}
+		
+		#info1{
+		position:  relative;
+		width: 80%;
+		height: 20%;
+		text-align: center;
+		z-index: 100;
+		display:block;
+		padding: 10px;
+		background: rgba(20, 00, 35, 0.2);
+		line-height: 1;
+		border-radius: 5px;
+		/*margin-left: 23%;*/
+		top: 0px;
+		left: 0px;
+        right: 0px;
+		margin: auto;
+		}
+
+     	#camera{
+		float: center;
+		position: absolute;
+		top: 50px;
+		width: 320px;
+		height: 240px;
+		text-align: center;
+		z-index: 100;
+		display:block;
+		padding: 1px;
+		background: rgba(125, 00, 125, 0.1);
+		line-height: 1;
+		border-radius: 1px;
+		margin-left: 79%;
+		}
+	.btn_img{
+		position: absolute;
+		top: 250px;
+		width: 120px;
+		height: 30px;
+		background: #2e82ff;
+		font-size: 18px;
+		text-align: center;
+		z-index: 100;
+		display:block;
+		padding: 1px;
+		border-radius: 27px;
+		background: rgba(125, 00, 125, 0.1);
+		line-height: 30px;
+		animation: zoomIn 1.5s infinite;
+		margin-left: 85%;
+		}
+		.btn_indicator{
+		position: absolute;
+		top: 300px;
+		width: 120px;
+		height: 30px;
+		background: #2e82ff;
+		font-size: 18px;
+		text-align: center;
+		z-index: 100;
+		display:block;
+		padding: 1px;
+		border-radius: 27px;
+		background: rgba(125, 00, 125, 0.1);
+		line-height: 30px;
+		animation: zoomIn 1.5s infinite;
+		margin-left: 85%;
+		}
+     .btn_joystic{
+		position: absolute;
+		top: 350px;
+		width: 120px;
+		height: 30px;
+		background: #2e82ff;
+		font-size: 18px;
+		text-align: center;
+		z-index: 100;
+		display:block;
+		padding: 1px;
+		border-radius: 27px;
+		background: rgba(125, 00, 125, 0.1);
+		line-height: 30px;
+		animation: zoomIn 1.5s infinite;
+		margin-left: 85%;
+		}
+		.btn_pathplan{
+		position: absolute;
+		top: 400px;
+		width: 120px;
+		height: 30px;
+		background: #2e82ff;
+		font-size: 18px;
+		text-align: center;
+		z-index: 100;
+		display:block;
+		padding: 1px;
+		border-radius: 27px;
+		background: rgba(125, 00, 125, 0.1);
+		line-height: 30px;
+		animation: zoomIn 1.5s infinite;
+		margin-left: 85%;
+		}
+		.btn_pathplan1{
+		position: absolute;
+		top: 450px;
+		width: 120px;
+		height: 30px;
+		background: #2e82ff;
+		font-size: 18px;
+		text-align: center;
+		z-index: 100;
+		display:block;
+		padding: 1px;
+		border-radius: 27px;
+		background: rgba(125, 00, 125, 0.1);
+		line-height: 30px;
+		animation: zoomIn 1.5s infinite;
+		margin-left: 85%;
+		}
+@keyframes zoomIn {
+    50% {
+     transform: scale(1.2);
+    }
+    100% {
+     transform: scale(1);
+    }
+}
+    </style>
+	 </head>
+  
+<div  class="div1" >
+    <div style="cursor: pointer" class="btn_img">
+	     <span>图像获取</span>
+	</div>
+	 <div onclick="display_indicator()" style="cursor: pointer" class="btn_indicator">
+	     <span>显示仪表</span>
+	</div>
+	<div onclick="display_joystic()" style="cursor: pointer" class="btn_joystic">
+	     <span>摇杆控制</span>
+	</div>
+	<div style="cursor: pointer" class="btn_pathplan">
+	     <span>路径规划</span>
+	</div>
+	<div style="cursor: pointer" class="btn_pathplan1">
+	     <span>其他</span>
+	</div>
+   <div  id="joystic_div" ></div>
+	<div id="camera" style="border: solid red 1px;visibility:hidden;">
+	   <img align="center" src="pic.png" width="160px" height="120px"  id="oImg"  style="margin: 0 auto;" />
+	 
+	</div>
+	<div id="info1"   border="1px" cellspacing="0" cellpadding="1" height="1px" width="1px">
+				<tr>
+		<font color="#FFffff">[使用说明：连接机器人后,右击选择路径规划的航点保存]</font> 
+		</br>
+		<font color="#FF0000">请输入16位的设备ID:</font>
+		 <input type='text' id='devid' value="1654530967979917" />
+		 <font color="#FF0000">请选择MQTT SERVER:</font>
+		 
+		    <select id="d6" style="width:100px;">
+			<option value="2">终端</option>
+            <option value="1">远端</option>
+            
+            </select>
+	     <button style="background-color: #00C0CB;" id="confirm" onclick="confirm()">确定</button>
+		 </br>
+		 <font color="#FF0000">当前坐标:</font> <input style="color:white;" type='text' id='lnglati' disabled />
+		 <font color="#FF0000">当前航点:</font> <label style="color:white;" type='text' id='waypoint'>0</label>
+		  </br>	
+         <font color="#FFffff">当前航向:</font> <label type='text' id='heading' >0</label>  
+          <font color="#FFffff">目标航向:</font><label type='text' id='targetheading' >0</label>  			 
+         <font color="#FFffff">航点距离:</font><label id="distance" type="text">0</label>         <!--value="115.402794, 27.738408"-->
+		<font color="#FFffff">当前速度:</font><label id="speed" type="text">0</label>    <!--value="116.715375, 39.515095"-->
+        </br>
+		<font color="#FFffff">GPS速度:</font><label id="gpsvelocity" type="text">0</label>   <!--value="116.715375, 39.515095"-->
+		<font color="#FFffff">地磁计方向:</font><label id="IMUheading" type="text">0</label>
+		<font color="#FFffff">GPS方向:</font><label id="gpsheading" type="text" >0</label>       <!--value="115.402794, 27.738408"-->
+		<font color="#FFffff">线加速度:</font><label id="velacc" type="text" >0</label>   <!--value="116.715375, 39.515095"-->
+	 </br>       
+	   <font color="#FFffff">z轴角速度:</font><label id="angspeed" type="text">0</label>    <!--value="115.402794, 27.738408"-->
+		<font color="#FFffff">电池电压:</font><label id="vol" type="text" >0</label>   <!--value="116.715375, 39.515095"-->
+		<font color="#FFffff">cpu温度:</font><label id="cputem" type="text" >0</label>
+		<font color="#FFffff">cpu负载:</font><label id="cpuload" type="text" >0</label>
+		</br>
+   		
+		 <button id="btnconnect" onclick="connectserver()">连接机器人</button>
+		 <button id="btndisconnect" onclick="disconnectserver()">断开机器人</button>
+		 <button id="savepoint" onclick="savepoint()">保存</button>
+		  <button id="savepoint" onclick="clearpoint()">清除</button>
+		  <button id="btnDri" onclick="coordinateSend()">下发启动</button>
+		  <button id="btnstop" onclick="carstop()">停止导航</button>
+		 	</br>
+
+	
+		 <font color="#FFffff">状态:</font><img id="state" src="redball.png"></img>
+			
+		
+	</div>
+	  <!--仪表容器  -->
+ <div id="indicator_table"   style="width:18.8%;height:800px;border:solid blue 1px;font-size:12px;overflow:auto;float:left"id="metreIMU"> 
+ 	 <div class="col-xs-12 col-sm-4 col-md-2">
+			<div id="horizon-container"></div>
+	</div>
+	<div class="row row-standard">
+					<div class="col-xs-12 col-sm-4 col-md-2">
+							<div id="pedal-container"></div>
+				</div>
+				 <div class="col-xs-12 col-sm-4 col-md-2">
+							<div id="speed-container"></div>
+				   </div>
+	   
+	 </div>
+	 <div class="col-xs-12 col-sm-4 col-md-2">
+                <div id="heading-container"></div>
+       </div>
+	 </div>
+    <!--百度地图容器   300px  改成了400px 变大了-->
+     <div style="position: absolute; width:100%;height:100%;top:0;border:solid blue 1px;font-size:12px;overflow:auto;float:left"id="map"> 
+	 </div>
+	
+</div>
+<!---
+<div style="width:100%;height:100%;border: solid black 2px;font-size:12px;overflow:auto">
+   <section id="jean-navbar-container"></section>
+
+
+	 
+</div>	 
+ --->
+	 
+
+	<script src="../js/jquery.min.js?v=2.1.4"></script>
+	 <script src="../js/mqttws31.js"></script>
+     <script src="../dist/nipplejs.min.js"></script>
+	<script src="../js/plugins/jeditable/jquery.jeditable.js"></script>
+	<script	src="../js/plugins/dataTables/jquery.dataTables.js"></script>
+	<script src="../js/jean-flight-indicator.js" defer="true"></script>
+    <script src="../js/jean-navbar.js"></script>	
+	<script src="../js/jquery.flightindicators.js"></script>
+  </body>
+<script type="text/javascript">
+//1654530967979917
+var heading,speed,horizon,pedal;
+ $(document).ready(function () {
+	FlightIndicator.setOptions({
+		assets: "../images/"
+	}); 
+      heading =  new FlightIndicator.Heading({
+        containerId: "heading-container"
+    });
+		
+	  speed = new FlightIndicator.Speed({
+		containerId: "speed-container",
+	   
+	});
+
+	  horizon = new FlightIndicator.Horizon({
+		containerId: "horizon-container",
+	   
+	});
+
+	 pedal = new FlightIndicator.Pedal({
+		containerId: "pedal-container",
+	  
+	});
+            
+			
+			// MQTTconnect();
+			 
+			 function disconnectserver() {
+			 window.clearInterval(window.tester);
+			 MQTTconnect();
+			 }
+	        function strlen(str){
+			var len = 0;
+			for (var i=0; i<str.length; i++) { 
+			 var c = str.charCodeAt(i); 
+			//单字节加1 
+			 if ((c >= 0x0001 && c <= 0x007e) || (0xff60<=c && c<=0xff9f)) { 
+			   len++; 
+			 } 
+			 else { 
+			  len+=2; 
+			 } 
+			} 
+			return len;
+		}			 
+		
+		
+});	   
+	if (window.devicePixelRatio >= 1.5) {
+  alert("This is a high-density screen");
+} else if (window.devicePixelRatio == 0.75) {
+  alert("This is a low-density screen");
+}
+     var  IMUheading,gpsheading =6,fusionheading,gpsvelocity;//document.getElementById("heading").value ;
+	 var  cpu_collectiveI = 1,tempcollectiveI2 = 0.80;//从下到上 1-0.0  
+	 var  speedI = 0,roll =0,pitch =0;
+     var  cpuload = 0,cputemp =0,wifisignal =10;
+	 var  velspeed = 0,angspeed =0;
+		  
+		var isStarted = true, interval;
+		
+	  //var stick, pedal, collective;
+
+    
+        
+		
+	   
+		
+	        var stateImg=document.getElementById("state");
+            var devid ="1234567890123456";//改成设备的id号  16位
+			var hostip = "www.woyilian.com",
+			 finalIp,
+			 lonti= 116.238982,
+			 lati = 40.0933592,
+			 connetflg =0,
+            port = 8083,client,
+            clientId = 'client-mao21804',
+            timeout = 5,
+            keepAlive = 50,
+            cleanSession = false,
+            ssl = false,
+			topic = devid+ '/state/gps';
+			var isvalid =0;
+			var contgps =0;
+			var urlPath = window.document.location.href;
+			 var docPath = window.document.location.pathname; //文件在服务器相对地址 /ISV/demo.aspx
+            var index = urlPath.indexOf(docPath);
+            var serverPath = urlPath.substring(0, index);
+			var serverip = serverPath.substring(7);
+			console.log("termianip:"+serverip);
+			var serverSelect ;
+         //   topic = '1110000001001001/state/gps';
+		 
+		 
+		 
+		 	var map;
+		    initMap();
+		    var btn_cnt=0;
+			var config_ok =0;
+			
+			function confirm() {
+				serverSelect =document.getElementById("d6").value;
+				
+				console.log("serverSelect :"+serverSelect);
+				if(serverSelect==1){
+				finalIp = hostip;
+				}
+				else {
+				hostip = serverip;
+				}
+				console.log("finalIp:"+hostip);
+				devid =document.getElementById("devid").value;
+				if(strlen(devid)!=16){
+					alert("请保证设备号为16位！");
+					return;
+				}
+				document.getElementById("confirm").style.backgroundColor = "#FFC0CB";
+
+				config_ok =1;
+				}
+			function MQTTconnect(){
+			
+			 
+			devid =document.getElementById("devid").value;
+			topic = devid+ '/state/gps';
+			console.log(topic);
+			
+			
+			client = new Paho.MQTT.Client(hostip, Number(port), clientId);
+			client.onConnectionLost = onConnectionLost;//注册连接断开处理事件
+			client.onMessageArrived = onMessageArrived;//注册消息接收处理事件
+			client.connect({onSuccess:onConnect});//连接服务器并注册连接成功处理事件
+			};
+			
+	
+		
+		
+
+			function onConnect() {
+			  // Once a connection has been made, make a subscription and send a message.
+			  console.log("onConnect:"+topic);
+			  connetflg =1;
+			  stateImg.src="greenball.png";
+			  client.subscribe(topic);
+			
+			};
+			function onConnectionLost(responseObject) {
+			  stateImg.src="redball.png";
+			  if (responseObject.errorCode !== 0)
+				console.log("onConnectionLost:"+responseObject.errorMessage);
+				console.log("连接已断开");
+			};     
+			function send(){
+			     console.log("into send message");
+			     //json对象
+                var jsoninf={ "gpsend":"1" ,"endlonti":"Bill" , "endlati":"Gates" };
+			    sendtopic = devid +'/download/position';
+				    //可以如下修改firstName属性的值
+               
+
+				var strs =new Array();
+			
+                var s = document.getElementById("end").value;
+				strs = s.split(",");
+				 jsoninf["endlonti"]=strs[0]+'';
+				 jsoninf["endlati"]=strs[1]+'';
+				 				
+				ss = JSON.stringify(jsoninf);
+				console.log(jsoninf);
+                if(s){
+                   // s = "{time:"+new Date().Format("yyyy-MM-dd hh:mm:ss")+", content:"+(s)+", from: web console}";
+                    message = new Paho.MQTT.Message(ss);
+                    message.destinationName = sendtopic;
+                        client.send(message);
+                       
+                }
+				
+            }
+            
+			function onMessageArrived(message) {
+			//  console.log("onMessageArrived:"+message.payloadString);
+			  //add parse code 
+			//  var t = message.payloadString;
+			    console.log("收到消息:"+message.payloadString);
+                console.log("主题："+message.destinationName);
+				console.log("长度："+strlen(message.payloadString));
+				if(strlen(message.payloadString)>60)
+				{
+				//  heading.update(headingI);//0~360 00
+				   var temp1 = jQuery.parseJSON(message.payloadString);
+
+				//	console.log("解析出来的：lng："+temp1.lonti); 
+				//	console.log("解析出来的：lati："+temp1.lati);
+				    lonti = temp1.lonti ;
+					lati = temp1.lati;
+					gpsheading=temp1.gpsheading;
+					gpsvelocity =temp1.gpsvelocity;
+					IMUheading =temp1.heading;
+				    roll = temp1.roll;
+					pitch =temp1.pitch;
+					cpuload =temp1.cpuload;
+				    cputemp = temp1.cputemp;
+					fusionheading = temp1.fusionheading;
+					//wifisignal =temp1.wifisignal;
+					//velspeed = speedI =temp1.velspeed/10;
+					//angspeed = temp1.angspeed;
+					
+					$('#IMUheading').innerHTML(IMUheading);
+					
+					$('#cputem').innerHTML(cputemp);
+					$('#cpuload').innerHTML(cpuload);
+					$('#gpsvelocity').innerHTML(gpsvelocity);
+					$('#angspeed').innerHTML(angspeed);
+					$('#heading').innerHTML(fusionheading);
+					
+					if(connetflg == 1)
+					{
+					   //addMarkerlat(lonti,lati,gpsheading);
+					   addMarkerlat(lonti,lati,fusionheading);
+					}
+					
+					var loc_gps =  lonti.toString()+','+lati.toString();
+					 
+					 $('#lnglati').val(loc_gps);
+					 $('#gpsheading').innerHTML(gpsheading);
+					   
+					 isvalid =1;
+				
+				}
+				heading.update(IMUheading);//0~360 00
+				cpu_collectiveI = 1.05-cpuload/100;
+				tempcollectiveI2 = 1-cputemp/100;
+				pedal.update(cpu_collectiveI, tempcollectiveI2);
+				speed.update(speedI );
+				horizon.update(pitch,roll);
+			
+			};
+	function connectserver() {
+		if(config_ok !=1){
+		   alert("请先配置(保证设备号为16位！)");
+					return;
+		}
+			 MQTTconnect();
+			}
+	function disconnectserver() {
+	    connetflg =0;
+		window.clearInterval(window.tester);
+		client.disconnect();
+
+	 }
+		
+  //计算字符串的长度
+		function strlen(str){
+			var len = 0;
+			for (var i=0; i<str.length; i++) { 
+			 var c = str.charCodeAt(i); 
+			//单字节加1 
+			 if ((c >= 0x0001 && c <= 0x007e) || (0xff60<=c && c<=0xff9f)) { 
+			   len++; 
+			 } 
+			 else { 
+			  len+=2; 
+			 } 
+			} 
+			return len;
+		}
+
+    //创建和初始化地图函数：
+    function initMap(){
+      createMap();//创建地图
+      setMapEvent();//设置地图事件
+      addMapControl();//向地图添加控件
+	    map.addControl(new BMap.NavigationControl());               // 添加平移缩放控件
+		map.addControl(new BMap.ScaleControl());                    // 添加比例尺控件
+		map.addControl(new BMap.OverviewMapControl());              //添加缩略地图控件
+		   
+      addMapOverlay();//向地图添加覆盖物
+	  // setInterval( "addMapOverlay()", 1000);
+    }
+    function createMap(){ 
+      map = new BMap.Map("map"); 
+      map.centerAndZoom(new BMap.Point(lonti,lati),10);//等级1-15
+    }
+    function setMapEvent(){
+      map.enableScrollWheelZoom();
+      map.enableKeyboard();
+      map.enableDragging();
+      map.enableDoubleClickZoom()
+    }
+    function addClickHandler(target,window){
+      target.addEventListener("click",function(){
+        target.openInfoWindow(window);
+      });
+    }
+    function addMapOverlay(){
+      var markers = [
+        {content:"编号:100110016",title:"智能机器人",imageOffset: {width:0,height:3},position:{lat:lati,lng:lonti}}
+      ];
+	  var iconip = "car.png";
+	  var myIcon = new BMap.Icon(iconip, new BMap.Size(20, 30), {
+				offset: new BMap.Size(0,3),
+				anchor:new BMap.Size(15,15)
+				
+			});
+
+    var point = new BMap.Point(markers[0].position.lng,markers[0].position.lat);
+    var marker = new BMap.Marker(point,{icon:myIcon,rotation:0});
+          
+		   
+		
+        var label = new BMap.Label(markers[0].title,{offset: new BMap.Size(25,5)});
+        var opts = {
+          width: 200,
+          title: markers[0].title,
+          enableMessage: false
+        };
+       // var infoWindow = new BMap.InfoWindow(markers[0].content,opts);
+        marker.setLabel(label);
+		
+       // addClickHandler(marker,infoWindow);
+        map.addOverlay(marker);
+      }
+    
+    //向地图添加控件
+    function addMapControl(){
+      var scaleControl = new BMap.ScaleControl({anchor:BMAP_ANCHOR_BOTTOM_LEFT});
+      scaleControl.setUnit(BMAP_UNIT_IMPERIAL);
+      map.addControl(scaleControl);
+      var navControl = new BMap.NavigationControl({anchor:BMAP_ANCHOR_TOP_LEFT,type:BMAP_NAVIGATION_CONTROL_LARGE});
+      map.addControl(navControl);
+      var overviewControl = new BMap.OverviewMapControl({anchor:BMAP_ANCHOR_BOTTOM_RIGHT,isOpen:true});
+      map.addControl(overviewControl);
+    }
+
+	  /*my97时间选择控件--开始*/
+		var md=""; //第二个输入框最大值的全局变量
+      	//第一个输入框选择好日期的时候操作
+      	function pickedFunc(){
+      		var Y=$dp.cal.getP('y');
+      		var M=$dp.cal.getP('M');
+      		var D=$dp.cal.getP('d');
+      		var H=$dp.cal.getP('H');
+      		var M1=$dp.cal.getP('m');
+      		var S=$dp.cal.getP('s');
+      		H=parseInt(H)+2;//相差只能是两小时
+      		M=parseInt(M)-1;
+      		D=parseInt(D);
+      		H=parseInt(H);
+      		M1=parseInt(M1);
+      		S=parseInt(S);
+      		var d = new Date();
+			d.setFullYear(Y,M,D); //设置时间
+			d.setHours(H,M1,S);
+			var nowDate=new Date();　
+			//跟现在的时间比较，如果算出来的值大于现在时间，修改全局变量md为现在时间。否则为算出来的时间。
+			if(nowDate<=d){
+				md="";
+			}else{
+				var month=d.getMonth()+1; //月份的范围是（0到11）;
+				md=d.getFullYear()+"-"+month+"-"+d.getDate()+" "+H+":"+M1+":"+S; //直接把d给过去会有问题，所以拼成字符串发过去
+			}
+		}
+		//第一个清空的时候的操作
+		function clearedFunc(){
+			md= "";
+		}
+		//给第二个输入框定义规则
+		function picker2rule(ele){
+			if(md == ""){
+				WdatePicker({el:ele,minDate:'#F{$dp.$D(\'datepicker1\')}',maxDate:'%y-%M-%d %H:%m:%s',dateFmt:'yyyy-MM-dd HH:mm:ss'});
+			}else{
+				WdatePicker({el:ele,minDate:'#F{$dp.$D(\'datepicker1\')}',maxDate:md,dateFmt:'yyyy-MM-dd HH:mm:ss'});
+			}
+		}
+   ////////////////********************************////map   
+   //********************************************/////
+      	////////////***********************************/
+		// 获取随机数
+		function getRandom(n){
+			return Math.floor(Math.random()*n+1)
+		}
+		//在轨迹点上创建图标，并添加点击事件，显示轨迹点信息。points,数组。
+		function addMarker(points){
+			var pointsLen = points.length;
+			if(pointsLen == 0){
+				return;
+			}
+			var myIcon = new BMap.Icon("http://api.map.baidu.com/lbsapi/createmap/images/icon.png", new BMap.Size(5, 5), {
+				offset: new BMap.Size(5, 5) 
+			});
+			// 创建标注对象并添加到地图   
+			for(var i = 0;i <pointsLen;i++){
+				var point = new BMap.Point(points[i].lng,points[i].lat);
+				var marker = new BMap.Marker(point, {icon: myIcon});
+				map.addOverlay(marker); 
+			}
+		}
+			//在轨迹点上创建图标，并添加点击事件，显示轨迹点信息。points,数组。
+			var last_lng,last_lat,last_heading,last_marker;
+			 var first_init =0;
+		function addMarkerlat(lng,lat,heading){
+		
+		    var iconip = "car.png";
+			
+			var myIcon = new BMap.Icon(iconip, new BMap.Size(20, 25), {
+				offset: new BMap.Size(0,3) 
+			});
+			// 创建标注对象并添加到地图   
+		    if(first_init ==0){
+			  first_init =1;
+			 }
+			else  if(first_init ==1){
+			  
+			   console.log("remove ");
+			   last_marker.remove();
+			   map.removeOverlay(last_marker); 
+			   addLine2point2(last_lat,last_lng,lat,lng);
+			 }
+			 
+			 last_lng = lng;
+			 last_lat = lat;
+			 last_heading = heading;
+			 
+			var point = new BMap.Point(lng,lat);
+			var marker = new BMap.Marker(point, {icon: myIcon,rotation:heading});
+			last_marker = marker;
+			
+			
+			map.addOverlay(marker); 
+			
+		} 
+		//添加线
+		function addLine(points){
+			var linePoints = [],pointsLen = points.length,i,polyline;
+			if(pointsLen == 0){
+				return;
+			}
+			// 创建标注对象并添加到地图   
+			for(i = 0;i <pointsLen;i++){
+				linePoints.push(new BMap.Point(points[i].lng,points[i].lat));
+			}
+			polyline = new BMap.Polyline(linePoints, {strokeColor:"red", strokeWeight:2, strokeOpacity:0.5});   //创建折线
+			map.addOverlay(polyline);   //增加折线
+		}
+		//添加两点线
+		function addLine2point2(lat_pre,longt_pre,lat,longt){
+		    var pointa = {"lng":longt_pre,"lat":lat_pre}
+			var pointb = {"lng":longt,"lat":lat}
+			var makerPoints = [];
+			var newLinePoints = [];
+			var len;
+			var points = [];
+		//	makerPoints.push(pointa);	
+          //  makerPoints.push(pointb);				
+			//addMarker(makerPoints);//增加对应该的轨迹点
+			points.push(pointa);
+			points.push(pointb);
+			var linePoints = [],pointsLen = points.length,i,polyline;
+			if(pointsLen == 0){
+				return;
+			}
+			// 创建标注对象并添加到地图   
+			for(i = 0;i <pointsLen;i++){
+				linePoints.push(new BMap.Point(points[i].lng,points[i].lat));
+			}
+			polyline = new BMap.Polyline(linePoints, {strokeColor:"red", strokeWeight:2, strokeOpacity:0.5});   //创建折线
+			map.addOverlay(polyline);   //增加折线
+		}
+		
+		 var latt=[34.591157,34.591156,34.591155,34.591156,34.591154,34.591152,34.591151,34.591151,34.591152,34.591151,34.591142,34.591136,34.591131,34.591126,34.591120,34.591110,34.591099,34.591086,34.591073,34.591061,34.591048,34.591031,34.591016,34.591013,34.590999,34.590983,34.590969,34.590955,34.590936,34.590925,34.590887,34.590858,34.590831,34.590808,34.590795,34.590786,34.590772,34.590763,34.590754,34.590744,34.590729,34.590715,34.590700,34.590683,34.590658,34.590628,34.590605,34.590604,34.590589,34.590577,34.590566,34.590550,34.590534,34.590520,34.590506,34.590499,34.590492,34.590487,34.590477,34.590485,34.590512,34.590526,34.590538,34.590547,34.590550,34.590532,34.590524,34.590525,34.590532,34.590528,34.590534,34.590547,34.590556,34.590562,34.590566,34.590571,34.590566,34.590552,34.590545,34.590541,34.590525,34.590527,34.590528,34.590529,34.590529,34.590529,34.590693,34.590751,34.590785,34.590798,34.590800,34.590796,34.590776,34.590765,34.590748,34.590735,34.590716,34.590709,34.590699,34.590692,34.590689,34.590688,34.590688,34.590685,34.590699,34.590703,34.590702,34.590698,34.590707,34.590730,34.590748,34.590759,34.590732,34.590712,34.590704,34.590701,34.590703,34.590707,34.590715,34.590722,34.590731,34.590741,34.590745,34.590752,34.590759,34.590766,34.590780,34.590797,34.590815,34.590833,34.590843,34.590825,34.590821,34.590842,34.590854,34.590856,34.590864,34.590874,34.590880,34.590901,34.590931,34.590957,34.590977,34.590994,34.591012,34.591017,34.591027,34.591051,34.591069,34.591071,34.591078,34.591079,34.591082,34.591096,34.591100,34.591105,34.591110,34.591117,34.591124,34.591131,34.591143,34.591155,34.591169,34.591182,34.591198,34.591213,34.591226,34.591241,34.591250,34.591261,34.591271,34.591281,34.591295,34.591313,34.591315,34.591306,34.591301,34.591295,34.591293,34.591290,34.591290,34.591290,34.591290,34.591288,34.591285,34.591282,34.591274,34.591269,34.591259,34.591247,34.591245,34.591245,34.591245,34.591245,34.591246,34.591247,34.591249,34.591252,34.591252,34.591253,34.591255,34.591256,34.591258,34.591257,34.591257,34.591258,34.591259,34.591259,34.591260,34.591261,34.591263,34.591265,34.591265,34.591266,34.591267,34.591268,34.591268,34.591268,34.591265,34.591262,34.591257,34.591258,34.591258,34.591262,34.591268,34.591272,34.591273,34.591274,34.591278,34.591282,34.591285,34.591290,34.591295,34.591299,34.591305,34.591310,34.591317,34.591322,34.591321,34.591319,34.591321,34.591321,34.591326,34.591332,34.591337,34.591341,34.591345,34.591350,34.591352,34.591353,34.591353,34.591352,34.591351,34.591352,34.591352,34.591352,34.591352,34.591352,34.591352,34.591352,34.591351,34.591349,34.591349,34.591348,34.591346,34.591344,34.591343,34.591343,34.591343,34.591344,34.591345,34.591345,34.591344,34.591342,34.591342,34.591339,34.591338,34.591339,34.591336,34.591331,34.591331,34.591331,34.591331,34.591332,34.591336,34.591338,34.591338,34.591337,34.591336,34.591336,34.591334,34.591330,34.591328,34.591329,34.591327,34.591326,34.591326,34.591326,34.591327,34.591326,34.591327,34.591328,34.591328,34.591326,34.591326,34.591327,34.591329,34.591328,34.591327,34.591322,34.591315,34.591309,34.591305,34.591306,34.591311,34.591320,34.591325,34.591330,34.591334,34.591333,34.591331,34.591336,34.591336,34.591341,34.591350,34.591357,34.591363,34.591365,34.591369,34.591373,34.591372,34.591373,34.591374,34.591370,34.591365,34.591364,34.591366,34.591373,34.591378,34.591380,34.591379,34.591376,34.591370,34.591363,34.591366,34.591382,34.591393,34.591400,34.591406,34.591411,34.591418,34.591416,34.591412,34.591406,34.591400,34.591386,34.591372,34.591352,34.591337,34.591323,34.591310,34.591312,34.591313,34.591315,34.591316,34.591317,34.591318,34.591317,34.591314,34.591306,34.591296,34.591291,34.591270,34.591254,34.591241,34.591227,34.591207,34.591187,34.591163,34.591139,34.591117,34.591094,34.591079,34.591069,34.591060,34.591048,34.591036,34.591024,34.591000,34.590986,34.590974,34.590972,34.590965,34.590962,34.590953,34.590938,34.590924,34.590913,34.590908,34.590907,34.590906,34.590905,34.590907,34.590907,34.590907,34.590906,34.590908,34.590909,34.590912,34.590915,34.590919,34.590926,34.590930,34.590927,34.590927,34.590930,34.590936,34.590940,34.590944,34.590945,34.590947,34.590949,34.590955,34.590960,34.590966,34.590970,34.590975,34.590980,34.590984,34.590988,34.590993,34.590998,34.591002,34.591006,34.591008,34.591011,34.591013,34.591015,34.591019,34.591021,34.591023,34.591025,34.591025,34.591026,34.591019,34.591015,34.591007,34.590994,34.590981,34.590963,34.590942,34.590932,34.590930,34.590928,34.590930,34.590928,34.590923,34.590937,34.590932,34.590919,34.590906,34.590890,34.590876,34.590819,34.590786,34.590763,34.590743,34.590733,34.590709,34.590678,34.590662,34.590651,34.590642,34.590634,34.590624,34.590613,34.590602,34.590595,34.590586,34.590576,34.590570,34.590551,34.590541,34.590534,34.590528,34.590501,34.590483,34.590474,34.590473,34.590479,34.590474,34.590490,34.590504,34.590526,34.590538,34.590553,34.590569,34.590588,34.590607,34.590616,34.590636,34.590663,34.590700,34.590731,34.590750,34.590763,34.590771,34.590784,34.590801,34.590807,34.590823,34.590850,34.590887,34.590917,34.590941,34.590941,34.590936,34.590910,34.590900,34.590896,34.590894,34.590893,34.590950,34.590979,34.590976,34.590956,34.590930,34.590897,34.590884,34.590892,34.590900,34.590903,34.590904,34.590905,34.590905,34.590803,34.590756,34.590747,34.590765,34.590830,34.590862,34.590888,34.590939,34.590867,34.590806,34.590750,34.590716,34.590692,34.590691,34.590679,34.590646,34.590612,34.590583,34.590552,34.590529,34.590510,34.590516,34.590509,34.590497,34.590493,34.590492,34.590492,34.590492,34.590336,34.590280,34.590249,34.590234,34.590225,34.590228,34.590181,34.590161,34.590140,34.590109,34.590088,34.590079,34.590071,34.590070,34.590086,34.590097,34.590101,34.590098,34.590097,34.590084,34.590091,34.590108,34.590129,34.590148,34.590167,34.590307,34.590377,34.590405,34.590402,34.590412,34.590420,34.590429,34.590437,34.590445,34.590454,34.590463,34.590479,34.590491,34.590499,34.590505,34.590514,34.590520,34.590490,34.590472,34.590465,34.590474,34.590480,34.590490,34.590497,34.590502,34.590520,34.590534,34.590536,34.590556,34.590573,34.590563,34.590561,34.590565,34.590572,34.590581,34.590592,34.590616,34.590635,34.590660,34.590686,34.590708,34.590721,34.590731,34.590741,34.590781,34.590826,34.590865,34.590880,34.590891,34.590899,34.590904,34.590922,34.590925,34.590924,34.590927,34.590920,34.590896,34.590870,34.590847,34.590829,34.590810,34.590791,34.590775,34.590760,34.590731,34.590716,34.590702,34.590693,34.590689,34.590693,34.590696,34.590695,34.590698,34.590693,34.590683,34.590673,34.590663,34.590652,34.590650,34.590650,34.590643,34.590643,34.590645,34.590647,34.590655,34.590659,34.590663,34.590660,34.590668,34.590685,34.590698,34.590697,34.590697,34.590696,34.590695,34.590693,34.590685,34.590675,34.590673,34.590665,34.590668,34.590670,34.590672,34.590672,34.590674,34.590653,34.590641,34.590640,34.590647,34.590649,34.590660,34.590666,34.590665,34.590646,34.590636,34.590629,34.590621,34.590614,34.590606,34.590598,34.590590,34.590579,34.590569,34.590559,34.590550,34.590544,34.590539,34.590533,34.590522,34.590504,34.590491,34.590478,34.590466,34.590456,34.590440,34.590420,34.590403,34.590387,34.590372,34.590355,34.590342,34.590336,34.590316,34.590298,34.590289,34.590279,34.590271,34.590262,34.590252,34.590247,34.590240,34.590233,34.590224,34.590213,34.590195,34.590180,34.590166,34.590158,34.590146,34.590138,34.590131,34.590122,34.590114,34.590095,34.590079,34.590064,34.590051,34.590039,34.590028,34.590019,34.590007,34.589995,34.589983,34.589971,34.589957,34.589944,34.589930,34.589913,34.589893,34.589877,34.589865,34.589857,34.589847,34.589839,34.589827,34.589815,34.589803,34.589790,34.589776,34.589767,34.589756,34.589743,34.589732,34.589720,34.589709,34.589701,34.589695,34.589685,34.589676,34.589664,34.589653,34.589642,34.589633,34.589623,34.589618,34.589609,34.589605,34.589596,34.589595,34.589594,34.589591,34.589589,34.589588,34.589588,34.589591,34.589592,34.589596,34.589598,34.589598,34.589597,34.589595,34.589593,34.589595,34.589595,34.589590,34.589588,34.589589,34.589592,34.589596,34.589600,34.589604,34.589608,34.589611,34.589613,34.589613,34.589615,34.589618,34.589619,34.589620,34.589625,34.589627,34.589629,34.589629,34.589627,34.589623,34.589611,34.589603,34.589596,34.589580,34.589577,34.589575,34.589575,34.589580,34.589583,34.589588,34.589595,34.589605,34.589611,34.589624,34.589632,34.589636,34.589640,34.589639,34.589635,34.589631,34.589627,34.589624,34.589618,34.589611,34.589613,34.589609,34.589600,34.589594,34.589588,34.589582,34.589584,34.589587,34.589591,34.589594,34.589590,34.589546,34.589499,34.589481,34.589476,34.589472,34.589469,34.589475,34.589460,34.589455,34.589454,34.589454,34.589458,34.589464,34.589459,34.589455,34.589448,34.589446,34.589448,34.589452,34.589457,34.589467,34.589481,34.589501,34.589518,34.589533,34.589552,34.589569,34.589582,34.589598,34.589614,34.589628,34.589637,34.589655,34.589675,34.589689,34.589710,34.589705,34.589717,34.589735,34.589744,34.589858,34.589910,34.589927,34.589941,34.589956,34.589971,34.589991,34.590011,34.590029,34.590046,34.590066,34.590082,34.590101,34.590114,34.590133,34.590147,34.590162,34.590174,34.590187,34.590200,34.590211,34.590230,34.590248,34.590260,34.590273,34.590288,34.590305,34.590316,34.590327,34.590339,34.590353,34.590365,34.590376,34.590385,34.590386,34.590393,34.590404,34.590416,34.590422,34.590430,34.590442,34.590458,34.590491,34.590513,34.590528,34.590541,34.590557,34.590571,34.590585,34.590602,34.590616,34.590629,34.590638,34.590648,34.590651,34.590650,34.590651,34.590651,34.590650,34.590650,34.590652,34.590654,34.590652,34.590646,34.590640,34.590635,34.590630,34.590631,34.590636,34.590643,34.590649,34.590654,34.590653,34.590650,34.590648,34.590646,34.590641,34.590635,34.590624,34.590624,34.590621,34.590630,34.590636,34.590643,34.590652,34.590660,34.590667,34.590677,34.590681,34.590683,34.590686,34.590679,34.590671,34.590667,34.590660,34.590652,34.590646,34.590639,34.590635,34.590624,34.590615,34.590613,34.590613,34.590613,34.590614,34.590615,34.590615,34.590611,34.590604,34.590594,34.590582,34.590566,34.590549,34.590533,34.590517,34.590501,34.590485,34.590470,34.590456,34.590441,34.590426,34.590411,34.590397,34.590381,34.590364,34.590349,34.590335,34.590321,34.590309,34.590295,34.590282,34.590274,34.590262,34.590250,34.590237,34.590224,34.590209,34.590194,34.590178,34.590163,34.590147,34.590133,34.590119,34.590106,34.590092,34.590079,34.590067,34.590054,34.590041,34.590027,34.590014,34.590000,34.589985,34.589969,34.589954,34.589940,34.589925,34.589909,34.589898,34.589888,34.589876,34.589861,34.589847,34.589834,34.589821,34.589805,34.589783,34.589769,34.589759,34.589746,34.589735,34.589723,34.589714,34.589700,34.589688,34.589678,34.589671,34.589661,34.589650,34.589638,34.589627,34.589615,34.589604,34.589598,34.589593,34.589589,34.589584,34.589580,34.589576,34.589574,34.589568,34.589562,34.589557,34.589556,34.589557,34.589565,34.589565,34.589567,34.589570,34.589572,34.589574,34.589575,34.589576,34.589578,34.589579,34.589581,34.589583,34.589583,34.589581,34.589579,34.589579,34.589575,34.589570,34.589564,34.589556,34.589549,34.589544,34.589538,34.589534,34.589529,34.589526,34.589523,34.589519,34.589516,34.589521,34.589525,34.589528,34.589532,34.589540,34.589548,34.589553,34.589553,34.589553,34.589553,34.589554,34.589555,34.589555,34.589561,34.589569,34.589573,34.589577,34.589583,34.589586,34.589571,34.589569,34.589559,34.589539,34.589510,34.589490,34.589478,34.589441,34.589419,34.589406,34.589392,34.589372,34.589359,34.589351,34.589320,34.589319,34.589329,34.589335,34.589349,34.589359,34.589367,34.589377,34.589388,34.589388,34.589394,34.589399,34.589394,34.589386,34.589378,34.589374,34.589376,34.589386,34.589387,34.589397,34.589408,34.589416,34.589410,34.589409,34.589414,34.589416,34.589418,34.589421,34.589424,34.589424,34.589423,34.589425,34.589419,34.589427,34.589431,34.589433,34.589438,34.589444,34.589445,34.589446,34.589449,34.589453,34.589454,34.589467,34.589473,34.589477,34.589479,34.589487,34.589496,34.589517,34.589529,34.589539,34.589539,34.589585,34.589599,34.589601,34.589597,34.589588,34.589580,34.589577,34.589576,34.589571,34.589568,34.589565,34.589562,34.589563,34.589564,34.589565,34.589564,34.589564,34.589558,34.589552,34.589549,34.589547,34.589545,34.589548,34.589547,34.589550,34.589552,34.589558,34.589563,34.589565,34.589569,34.589572,34.589575,34.589580,34.589584,34.589586,34.589587,34.589588,34.589589,34.589592,34.589601,34.589609,34.589617,34.589628,34.589639,34.589639,34.589632,34.589628,34.589626,34.589613,34.589605,34.589596,34.589601,34.589606,34.589615,34.589626,34.589628,34.589632,34.589637,34.589643,34.589656,34.589662,34.589667,34.589671,34.589676,34.589669,34.589669,34.589668,34.589668,34.589666,34.589670,34.589672,34.589675,34.589678,34.589683,34.589688,34.589695,34.589701,34.589705,34.589707,34.589711,34.589715,34.589719,34.589724,34.589726,34.589738,34.589740,34.589740,34.589739,34.589738,34.589736,34.589737,34.589739,34.589740,34.589740,34.589739,34.589735,34.589733,34.589731,34.589728,34.589726,34.589722,34.589719,34.589714,34.589705,34.589691,34.589677,34.589665,34.589652,34.589640,34.589626,34.589611,34.589595,34.589580,34.589568,34.589555,34.589547,34.589529,34.589511,34.589488,34.589475,34.589463,34.589453,34.589456,34.589456,34.589459,34.589468,34.589471,34.589478,34.589482,34.589481,34.589460,34.589409,34.589389,34.589376,34.589359,34.589353,34.589352,34.589349,34.589453,34.589484,34.589475,34.589458,34.589479,34.589504,34.589513,34.589525,34.589535,34.589542,34.589552,34.589518,34.589488,34.589463,34.589446,34.589433,34.589430,34.589432,34.589431,34.589432,34.589433,34.589436,34.589438,34.589439,34.589442,34.589443,34.589442,34.589440,34.589438,34.589429,34.589415,34.589402,34.589390,34.589378,34.589373,34.589371,34.589371,34.589372,34.589376,34.589378,34.589389,34.589400,34.589411,34.589424,34.589442,34.589448,34.589459,34.589469,34.589435,34.589432,34.589438,34.589449,34.589470,34.589475,34.589490,34.589507,34.589523,34.589530,34.589534,34.589540,34.589546,34.589554,34.589564,34.589580,34.589596,34.589608,34.589618,34.589721,34.589849,34.589952,34.590032,34.590131,34.590204,34.590254,34.590280,34.590290,34.590288,34.590296,34.590308,34.590318,34.590306,34.590301,34.590298,34.590297,34.590295,34.592022,34.591928,34.591887,34.591867,34.591856,34.591847,34.591020,34.590715,34.590614,34.590578,34.590565,34.590568,34.590580,34.590591,34.590597,34.590596,34.590598,34.590583,34.590577,34.590577,34.590579,34.590566,34.590553,34.590546,34.590546,34.590549,34.590556,34.590554,34.590544,34.590532,34.590518,34.590509,34.590497,34.590487,34.590487,34.590491,34.590489,34.590483,34.590472,34.590458,34.590431,34.590410,34.590389,34.590377,34.590360,34.590347,34.590332,34.590318,34.590297,34.590276,34.590261,34.590253,34.590244,34.590245,34.590234,34.590216,34.590199,34.590185,34.590170,34.590157,34.590151,34.590141,34.590130,34.590119,34.590105,34.590095,34.590084,34.590072,34.590061,34.590049,34.590046,34.590037,34.590026,34.590014,34.589996,34.589983,34.589955,34.589934,34.589902,34.589875,34.589858,34.589843,34.589827,34.589819,34.589811,34.589804,34.589797,34.589790,34.589782,34.589770,34.589759,34.589748,34.589741,34.589729,34.589728,34.589723,34.589711,34.589698,34.589694,34.589693,34.589695,34.589696,34.589689,34.589683,34.589680,34.589680,34.589679,34.589678,34.589679,34.589680,34.589682,34.589683,34.589685,34.589685,34.589686,34.589687,34.589688,34.589690,34.589694,34.589694,34.589694,34.589692,34.589688,34.589684,34.589681,34.589677,34.589678,34.589679,34.589684,34.589689,34.589693,34.589701,34.589709,34.589717,34.589726,34.589734,34.589742,34.589751,34.589756,34.589764,34.589772,34.589777,34.589785,34.589791,34.589793,34.589794,34.589794,34.589790,34.589783,34.589772,34.589761,34.589751,34.589742,34.589740,34.589748,34.589756,34.589761,34.589771,34.589783,34.589792,34.589794,34.589797,34.589802,34.589811,34.589823,34.589836,34.589856,34.589870,34.589904,34.589931,34.589947,34.589958,34.589969,34.589975,34.589986,34.589994,34.590003,34.590015,34.590032,34.590046,34.590060,34.590069,34.590063,34.590072,34.590089,34.590106,34.590124,34.590163,34.590198,34.590217,34.590242,34.590269,34.590279,34.590292,34.590296,34.590304,34.590305,34.590313,34.590324,34.590332,34.590338,34.590343,34.590355,34.590360,34.590380,34.590384,34.590381,34.590382,34.590387,34.590397,34.590409,34.590417,34.590428,34.590440,34.590451,34.590460,34.590467,34.590474,34.590474,34.590474,34.590474,34.590474,34.590473,34.590013,34.589837,34.589779,34.589790,34.589798,34.589835,34.589902,34.589959,34.590003,34.590030,34.590050,34.590061,34.590069,34.590075,34.590086,34.590099,34.590108,34.590118,34.590125,34.590130,34.590131,34.590131,34.590127,34.590119,34.590113,34.590109,34.590104,34.590097,34.590088,34.590079,34.590070,34.590061,34.590053,34.590045,34.590038,34.590030,34.590022,34.590015,34.590007,34.590001,34.589992,34.589985,34.589972,34.589960,34.589939,34.589924,34.589918,34.589908,34.589898,34.589894,34.589887,34.589877,34.589870,34.589862,34.589854,34.589845,34.589834,34.589821,34.589807,34.589792,34.589779,34.589765,34.589752,34.589739,34.589724,34.589710,34.589696,34.589683,34.589668,34.589651,34.589643,34.589638,34.589633,34.589632,34.589634,34.589637,34.589644,34.589652,34.589665,34.589674,34.589680,34.589663,34.589655,34.589654,34.589655,34.589661,34.589666,34.589669,34.589666,34.589656,34.589648,34.589643,34.589639,34.589636,34.589628,34.589614,34.589609,34.589612,34.589614,34.589615,34.589619,34.589627,34.589638,34.589648,34.589656,34.589663,34.589671,34.589681,34.589691,34.589700,34.589709,34.589719,34.589730,34.589744,34.589758,34.589769,34.589779,34.589792,34.589805,34.589819,34.589832,34.589846,34.589860,34.589880,34.589897,34.589911,34.589924,34.589932,34.589941,34.589954,34.589968,34.589981,34.589996,34.590007,34.590016,34.590020,34.590018,34.590006,34.589989,34.589967,34.589954,34.589953,34.589959,34.589970,34.589974,34.589987,34.590002,34.590008,34.590023,34.590046,34.590069,34.590089,34.590105,34.590120,34.590136,34.590150,34.590168,34.590186,34.590205,34.590227,34.590251,34.590271,34.590289,34.590302,34.590320,34.590338,34.590356,34.590374,34.590391,34.590411,34.590429,34.590450,34.590470,34.590487,34.590503,34.590524,34.590544,34.590562,34.590607,34.590646,34.590674,34.590701,34.590727,34.590757,34.590774,34.590760,34.590734,34.590730,34.590724,34.590720,34.590716,34.590711,34.590705,34.590705,34.590704,34.590700,34.590696,34.590692,34.590688,34.590686,34.590684,34.590679,34.590673,34.590663,34.590650,34.590640,34.590631,34.590620,34.590612,34.590607,34.590599,34.590590,34.590588,34.590593,34.590594,34.590592,34.590588,34.590584,34.590580,34.590578,34.590569,34.590555,34.590536,34.590518,34.590502,34.590488,34.590475,34.590460,34.590445,34.590430,34.590416,34.590403,34.590391,34.590379,34.590367,34.590354,34.590340,34.590328,34.590316,34.590304,34.590291,34.590279,34.590262,34.590248,34.590233,34.590215,34.590200,34.590188,34.590178,34.590163,34.590149,34.590135,34.590126,34.590118,34.590110,34.590106,34.590097,34.590084,34.590067,34.590051,34.590038,34.590022,34.590007,34.589996,34.589986,34.589980,34.589978,34.589975,34.589984,34.589985,34.589978,34.589970,34.589960,34.589947,34.589938,34.589927,34.589914,34.589902,34.589890,34.589735,34.589680,34.589653,34.589611,34.589588,34.589572,34.589575,34.589559,34.589550,34.589541,34.589538,34.589532,34.589518,34.589515,34.589520,34.589524,34.589528,34.589529,34.589533,34.589538,34.589544,34.589549,34.589555,34.589559,34.589560,34.589564,34.589567,34.589570,34.589576,34.589578,34.589576,34.589574,34.589574,34.589576,34.589580,34.589587,34.589596,34.589603,34.589609,34.589617,34.589628,34.589636,34.589641,34.589644,34.589645,34.589647,34.589654,34.589657,34.589653,34.589649,34.589651,34.589643,34.589632,34.589616,34.589620,34.589631,34.589644,34.589622,34.589611,34.589582,34.589562,34.589544,34.589551,34.589562,34.589564,34.589564,34.589565,34.589564,34.589566,34.589567,34.589562,34.589556,34.589530,34.589494,34.589461,34.589450,34.589448,34.589443,34.589438,34.589438,34.589440,34.589444,34.589456,34.589477,34.589501,34.589518,34.589541,34.589563,34.589583,34.589648,34.589680,34.589696,34.589686,34.589692,34.589695,34.589718,34.589729,34.589734,34.589734,34.589734,34.589734,34.589734,34.589733,34.588582,34.588176,34.588080,34.588093,34.588102,34.588109,34.588115,34.588120,34.588712,34.588922,34.588980,34.588982,34.588963,34.588937,34.588909,34.588895,34.588886,34.588887,34.588908,34.588928,34.588953,34.588966,34.588971,34.588991,34.589018,34.589070,34.589097,34.589118,34.589137,34.589149,34.589163,34.589178,34.589191,34.589193,34.589200,34.589200,34.589203,34.589209,34.589211,34.589211,34.589211,34.589212,34.589219,34.589229,34.589240,34.589255,34.589268,34.589283,34.589302,34.589296,34.589277,34.589272,34.589267,34.589261,34.589251,34.589239,34.589229,34.589213,34.589193,34.589176,34.589167,34.589170,34.589188,34.589219,34.589250,34.589280,34.589298,34.589296,34.589302,34.589314,34.589319,34.589324,34.589326,34.589331,34.589338,34.589341,34.589341,34.589340,34.589339,34.589333,34.589329,34.589333,34.589341,34.589350,34.589360,34.589373,34.589385,34.589391,34.589396,34.589399,34.589401,34.589397,34.589395,34.589395,34.589388,34.589372,34.589367,34.589371,34.589377,34.589383,34.589384,34.589386,34.589386,34.589382,34.589389,34.589401,34.589413,34.589423,34.589431,34.589440,34.589452,34.589468,34.589479,34.589495,34.589510,34.589527,34.589544,34.589560,34.589570,34.589579,34.589584,34.589587,34.589584,34.589578,34.589572,34.589565,34.589560,34.589557,34.589553,34.589552,34.589552,34.589552,34.589549,34.589550,34.589535,34.589534,34.589538,34.589539,34.589542,34.589545,34.589547,34.589549,34.589550,34.589556,34.589570,34.589577,34.589568,34.589561,34.589566,34.589569,34.589574,34.589576,34.589590,34.589595,34.589602,34.589611,34.589620,34.589625,34.589629,34.589632,34.589635,34.589637,34.589640,34.589645,34.589645,34.589640,34.589632,34.589622,34.589615,34.589610,34.589606,34.589600,34.589594,34.589587,34.589592,34.589599,34.589612,34.589629,34.589648,34.589652,34.589658,34.589661,34.589665,34.589668,34.589671,34.589672,34.589669,34.589661,34.589654,34.589647,34.589641,34.589638,34.589636,34.589634,34.589632,34.589631,34.589631,34.589631,34.589631,34.589631,34.589634,34.589635,34.589636,34.589636,34.589636,34.589635,34.589635,34.589634,34.589632,34.589630,34.589630,34.589630,34.589628,34.589626,34.589623,34.589621,34.589621,34.589619,34.589615,34.589613,34.589610,34.589608,34.589606,34.589605,34.589602,34.589600,34.589595,34.589589,34.589583,34.589575,34.589571,34.589571,34.589543,34.589527,34.589518,34.589518,34.589517,34.589518,34.589519,34.589516,34.589515,34.589517,34.589519,34.589507,34.589501,34.589496,34.589489,34.589482,34.589481,34.589480,34.589476,34.589480,34.589481,34.589497,34.589511,34.589520,34.589529,34.589538,34.589545,34.589553,34.589561,34.589562,34.589561,34.589560,34.589561,34.589568,34.589572,34.589573,34.589575,34.589579,34.589579,34.589575,34.589573,34.589576,34.589577,34.589577,34.589579,34.589578,34.589587,34.589590,34.589597,34.589606,34.589615,34.589621,34.589628,34.589635,34.589639,34.589642,34.589645,34.589640,34.589642,34.589640,34.589636,34.589635,34.589634,34.589630,34.589629,34.589627,34.589621,34.589619,34.589618,34.589587,34.589571,34.589562,34.589559,34.589559,34.589567,34.589577,34.589556,34.589548,34.589606,34.589636,34.589651,34.589653,34.589652,34.589654,34.589655,34.589591,34.589564,34.589553,34.589551,34.589548,34.589548,34.589541,34.589545,34.589548,34.589555,34.589555,34.589554,34.589554,34.589547,34.589542,34.589535,34.589546,34.589562,34.589579,34.589599,34.589614,34.589630,34.589640,34.589643,34.589650,34.589662,34.589690,34.589716,34.589731,34.589745,34.589764,34.589784,34.589792,34.589794,34.589794,34.589794,34.590024,34.590095,34.590092,34.590079,34.590063,34.590048,34.590025,34.589975,34.589896,34.589827,34.589780,34.589750,34.589721,34.589667,34.589630,34.589610,34.589604,34.589603,34.589605,34.589607,34.589606,34.589603,34.589607,34.589608,34.589608,34.589607,34.589605,34.589605,34.589601,34.589600,34.589595,34.589594,34.589588,34.589578,34.589575,34.589573,34.589571,34.589572,34.589575,34.589576,34.589574,34.589573,34.589571,34.589571,34.589569,34.589568,34.589568,34.589569,34.589570,34.589570,34.589570,34.589569,34.589570,34.589570,34.589568,34.589570,34.589571,34.589566,34.589566,34.589602,34.589615,34.589619,34.589620,34.589621,34.589620,34.589618,34.589614,34.589611,34.589607,34.589607];
+		var lngtt =[110.374204,110.374204,110.374207,110.374207,110.374210,110.374214,110.374217,110.374218,110.374219,110.374220,110.374233,110.374238,110.374242,110.374246,110.374250,110.374253,110.374254,110.374254,110.374252,110.374247,110.374241,110.374236,110.374228,110.374219,110.374194,110.374177,110.374168,110.374165,110.374159,110.374152,110.374144,110.374137,110.374136,110.374132,110.374136,110.374131,110.374139,110.374143,110.374145,110.374145,110.374145,110.374143,110.374137,110.374131,110.374107,110.374076,110.374061,110.374046,110.374031,110.374020,110.374007,110.373993,110.373981,110.373967,110.373950,110.373937,110.373923,110.373899,110.373893,110.373855,110.373708,110.373644,110.373610,110.373590,110.373559,110.373523,110.373503,110.373485,110.373470,110.373446,110.373434,110.373418,110.373412,110.373399,110.373383,110.373366,110.373351,110.373331,110.373312,110.373287,110.373232,110.373170,110.373148,110.373140,110.373138,110.373138,110.372920,110.372832,110.372807,110.372792,110.372789,110.372787,110.372806,110.372810,110.372809,110.372806,110.372783,110.372761,110.372752,110.372741,110.372721,110.372691,110.372676,110.372658,110.372658,110.372664,110.372671,110.372682,110.372717,110.372767,110.372805,110.372829,110.372819,110.372811,110.372808,110.372808,110.372810,110.372816,110.372820,110.372824,110.372832,110.372837,110.372845,110.372855,110.372865,110.372877,110.372895,110.372910,110.372921,110.372931,110.372930,110.372894,110.372905,110.372934,110.372966,110.373006,110.373033,110.373050,110.373059,110.373080,110.373114,110.373145,110.373166,110.373179,110.373179,110.373186,110.373185,110.373213,110.373219,110.373206,110.373190,110.373173,110.373159,110.373138,110.373132,110.373120,110.373112,110.373113,110.373114,110.373115,110.373109,110.373109,110.373105,110.373107,110.373115,110.373132,110.373140,110.373145,110.373143,110.373140,110.373139,110.373141,110.373156,110.373176,110.373184,110.373191,110.373183,110.373174,110.373170,110.373168,110.373169,110.373171,110.373170,110.373167,110.373166,110.373168,110.373159,110.373154,110.373151,110.373153,110.373151,110.373152,110.373151,110.373151,110.373152,110.373153,110.373157,110.373162,110.373164,110.373166,110.373169,110.373171,110.373171,110.373170,110.373170,110.373172,110.373171,110.373167,110.373168,110.373170,110.373175,110.373179,110.373181,110.373184,110.373186,110.373189,110.373190,110.373191,110.373186,110.373182,110.373177,110.373177,110.373176,110.373173,110.373170,110.373168,110.373166,110.373165,110.373168,110.373172,110.373173,110.373178,110.373182,110.373186,110.373193,110.373197,110.373205,110.373209,110.373207,110.373203,110.373203,110.373203,110.373211,110.373217,110.373222,110.373229,110.373235,110.373241,110.373249,110.373253,110.373255,110.373256,110.373259,110.373261,110.373260,110.373261,110.373261,110.373262,110.373263,110.373263,110.373262,110.373259,110.373259,110.373259,110.373255,110.373251,110.373248,110.373248,110.373247,110.373249,110.373250,110.373249,110.373246,110.373241,110.373238,110.373233,110.373230,110.373228,110.373223,110.373211,110.373209,110.373210,110.373209,110.373216,110.373227,110.373232,110.373233,110.373234,110.373233,110.373232,110.373226,110.373218,110.373215,110.373215,110.373212,110.373212,110.373210,110.373210,110.373212,110.373211,110.373213,110.373213,110.373212,110.373209,110.373210,110.373211,110.373212,110.373211,110.373211,110.373208,110.373205,110.373202,110.373201,110.373201,110.373203,110.373209,110.373214,110.373223,110.373235,110.373240,110.373245,110.373245,110.373252,110.373255,110.373259,110.373260,110.373265,110.373270,110.373267,110.373255,110.373250,110.373247,110.373252,110.373253,110.373259,110.373259,110.373256,110.373248,110.373239,110.373234,110.373231,110.373235,110.373243,110.373245,110.373242,110.373232,110.373223,110.373217,110.373212,110.373208,110.373204,110.373204,110.373205,110.373201,110.373198,110.373197,110.373190,110.373199,110.373200,110.373201,110.373200,110.373194,110.373192,110.373190,110.373190,110.373187,110.373186,110.373181,110.373180,110.373183,110.373181,110.373174,110.373173,110.373169,110.373162,110.373158,110.373160,110.373162,110.373168,110.373170,110.373174,110.373181,110.373175,110.373168,110.373165,110.373160,110.373157,110.373157,110.373161,110.373164,110.373176,110.373186,110.373205,110.373224,110.373248,110.373291,110.373335,110.373365,110.373377,110.373379,110.373382,110.373381,110.373378,110.373374,110.373371,110.373369,110.373365,110.373360,110.373355,110.373350,110.373343,110.373333,110.373328,110.373329,110.373328,110.373324,110.373314,110.373307,110.373302,110.373298,110.373295,110.373291,110.373282,110.373275,110.373269,110.373263,110.373257,110.373252,110.373246,110.373240,110.373235,110.373229,110.373225,110.373221,110.373217,110.373213,110.373209,110.373209,110.373208,110.373206,110.373205,110.373203,110.373202,110.373202,110.373202,110.373200,110.373208,110.373225,110.373246,110.373269,110.373291,110.373294,110.373291,110.373291,110.373286,110.373279,110.373279,110.373182,110.373142,110.373123,110.373112,110.373106,110.373099,110.373126,110.373134,110.373133,110.373126,110.373111,110.373086,110.373085,110.373077,110.373069,110.373064,110.373057,110.373055,110.373049,110.373038,110.373040,110.373025,110.373020,110.373014,110.373032,110.373034,110.373028,110.373022,110.373036,110.373038,110.373036,110.373031,110.373006,110.373003,110.372981,110.372963,110.372938,110.372949,110.372952,110.372952,110.372951,110.372952,110.372961,110.372972,110.372979,110.372983,110.372994,110.373007,110.373011,110.373022,110.373049,110.373110,110.373138,110.373156,110.373178,110.373188,110.373205,110.373219,110.373258,110.373305,110.373357,110.373375,110.373382,110.373384,110.373384,110.372682,110.372412,110.372301,110.372251,110.372223,110.372208,110.372193,110.372181,110.372182,110.372184,110.372186,110.372189,110.372191,110.371921,110.371814,110.371762,110.371723,110.371656,110.371598,110.371559,110.371517,110.371501,110.371499,110.371515,110.371520,110.371522,110.371527,110.371541,110.371551,110.371564,110.371574,110.371589,110.371602,110.371618,110.371613,110.371610,110.371601,110.371598,110.371597,110.371597,110.371597,110.371472,110.371430,110.371404,110.371391,110.371384,110.371378,110.371401,110.371423,110.371436,110.371459,110.371474,110.371484,110.371492,110.371501,110.371497,110.371498,110.371504,110.371503,110.371504,110.371511,110.371543,110.371557,110.371574,110.371591,110.371606,110.371642,110.371665,110.371671,110.371677,110.371678,110.371671,110.371667,110.371663,110.371665,110.371673,110.371689,110.371699,110.371704,110.371718,110.371737,110.371754,110.371772,110.371776,110.371782,110.371792,110.371804,110.371815,110.371825,110.371834,110.371839,110.371846,110.371854,110.371871,110.371886,110.371897,110.371896,110.371897,110.371897,110.371900,110.371902,110.371901,110.371898,110.371900,110.371914,110.371930,110.371946,110.371958,110.371972,110.371986,110.372007,110.372013,110.372027,110.372042,110.372054,110.372067,110.372076,110.372086,110.372103,110.372106,110.372111,110.372109,110.372103,110.372097,110.372092,110.372085,110.372074,110.372070,110.372064,110.372054,110.372028,110.372014,110.372005,110.372000,110.371998,110.371997,110.371984,110.371975,110.371966,110.371963,110.371974,110.371981,110.371989,110.372002,110.372008,110.372012,110.372010,110.372003,110.371998,110.371999,110.371996,110.371991,110.371995,110.372003,110.372010,110.372018,110.372022,110.372019,110.372015,110.372014,110.372008,110.372001,110.371997,110.371990,110.371984,110.371977,110.371977,110.371974,110.371972,110.371969,110.371967,110.371969,110.371972,110.371974,110.371978,110.371982,110.371990,110.371995,110.371992,110.371984,110.371976,110.371967,110.371959,110.371951,110.371941,110.371931,110.371920,110.371908,110.371900,110.371892,110.371880,110.371867,110.371857,110.371843,110.371832,110.371816,110.371805,110.371804,110.371805,110.371796,110.371777,110.371756,110.371747,110.371741,110.371736,110.371728,110.371695,110.371670,110.371667,110.371664,110.371658,110.371658,110.371653,110.371647,110.371641,110.371636,110.371634,110.371627,110.371620,110.371611,110.371613,110.371608,110.371602,110.371596,110.371589,110.371570,110.371567,110.371559,110.371549,110.371555,110.371555,110.371552,110.371548,110.371545,110.371540,110.371535,110.371529,110.371519,110.371517,110.371515,110.371514,110.371510,110.371509,110.371498,110.371506,110.371505,110.371499,110.371491,110.371484,110.371469,110.371461,110.371456,110.371452,110.371448,110.371442,110.371429,110.371418,110.371407,110.371397,110.371392,110.371390,110.371386,110.371379,110.371378,110.371375,110.371372,110.371369,110.371363,110.371366,110.371366,110.371358,110.371353,110.371342,110.371344,110.371348,110.371350,110.371354,110.371358,110.371362,110.371365,110.371367,110.371371,110.371373,110.371374,110.371378,110.371381,110.371385,110.371387,110.371395,110.371403,110.371410,110.371415,110.371417,110.371415,110.371413,110.371410,110.371405,110.371402,110.371397,110.371391,110.371390,110.371384,110.371379,110.371379,110.371379,110.371377,110.371370,110.371367,110.371364,110.371364,110.371365,110.371372,110.371380,110.371388,110.371407,110.371414,110.371423,110.371430,110.371434,110.371434,110.371438,110.371442,110.371441,110.371447,110.371446,110.371449,110.371455,110.371456,110.371459,110.371464,110.371474,110.371480,110.371485,110.371494,110.371506,110.371522,110.371539,110.371551,110.371562,110.371574,110.371591,110.371601,110.371616,110.371629,110.371640,110.371648,110.371668,110.371709,110.371731,110.371732,110.371727,110.371728,110.371735,110.371745,110.371746,110.371744,110.371739,110.371743,110.371749,110.371747,110.371761,110.371763,110.371763,110.371747,110.371734,110.371728,110.371719,110.371715,110.371717,110.371721,110.371726,110.371729,110.371735,110.371741,110.371746,110.371752,110.371759,110.371766,110.371756,110.371751,110.371734,110.371733,110.371755,110.371777,110.371780,110.371785,110.371790,110.371804,110.371812,110.371811,110.371813,110.371817,110.371817,110.371822,110.371828,110.371836,110.371840,110.371845,110.371855,110.371862,110.371872,110.371879,110.371886,110.371889,110.371897,110.371908,110.371918,110.371944,110.371959,110.371974,110.371985,110.371995,110.372002,110.372009,110.372021,110.372032,110.372040,110.372047,110.372057,110.372068,110.372084,110.372095,110.372106,110.372115,110.372131,110.372141,110.372145,110.372145,110.372128,110.372128,110.372138,110.372151,110.372159,110.372166,110.372177,110.372185,110.372193,110.372196,110.372201,110.372206,110.372202,110.372190,110.372182,110.372175,110.372167,110.372162,110.372158,110.372155,110.372154,110.372148,110.372138,110.372135,110.372133,110.372133,110.372129,110.372126,110.372128,110.372132,110.372137,110.372141,110.372145,110.372153,110.372158,110.372162,110.372160,110.372160,110.372160,110.372153,110.372147,110.372137,110.372135,110.372129,110.372121,110.372121,110.372119,110.372118,110.372117,110.372123,110.372127,110.372128,110.372132,110.372134,110.372134,110.372135,110.372136,110.372142,110.372148,110.372153,110.372155,110.372156,110.372157,110.372157,110.372155,110.372150,110.372144,110.372140,110.372135,110.372131,110.372125,110.372118,110.372111,110.372103,110.372097,110.372090,110.372084,110.372077,110.372070,110.372064,110.372054,110.372044,110.372036,110.372029,110.372024,110.372018,110.372011,110.372003,110.371995,110.371978,110.371967,110.371959,110.371952,110.371945,110.371938,110.371930,110.371924,110.371918,110.371913,110.371908,110.371904,110.371900,110.371894,110.371887,110.371881,110.371877,110.371874,110.371869,110.371864,110.371862,110.371859,110.371853,110.371847,110.371840,110.371834,110.371829,110.371827,110.371824,110.371822,110.371817,110.371813,110.371807,110.371800,110.371799,110.371806,110.371804,110.371798,110.371794,110.371788,110.371782,110.371773,110.371765,110.371761,110.371753,110.371746,110.371736,110.371725,110.371716,110.371709,110.371699,110.371691,110.371680,110.371674,110.371669,110.371664,110.371659,110.371653,110.371646,110.371640,110.371632,110.371623,110.371615,110.371605,110.371605,110.371604,110.371604,110.371606,110.371606,110.371608,110.371609,110.371610,110.371612,110.371612,110.371612,110.371613,110.371615,110.371616,110.371617,110.371619,110.371621,110.371625,110.371631,110.371640,110.371651,110.371663,110.371677,110.371689,110.371699,110.371711,110.371723,110.371736,110.371746,110.371756,110.371767,110.371775,110.371780,110.371790,110.371800,110.371809,110.371819,110.371831,110.371841,110.371846,110.371853,110.371867,110.371882,110.371894,110.371899,110.371902,110.371904,110.371904,110.371893,110.371869,110.371867,110.371878,110.371898,110.371908,110.371914,110.371921,110.371931,110.371936,110.371930,110.371921,110.371919,110.371912,110.371898,110.371902,110.371907,110.371909,110.371908,110.371905,110.371906,110.371907,110.371910,110.371910,110.371910,110.371912,110.371919,110.371921,110.371919,110.371921,110.371921,110.371912,110.371906,110.371901,110.371896,110.371892,110.371891,110.371885,110.371886,110.371886,110.371886,110.371888,110.371891,110.371893,110.371893,110.371895,110.371896,110.371898,110.371900,110.371901,110.371903,110.371905,110.371905,110.371905,110.371905,110.371906,110.371903,110.371902,110.371900,110.371898,110.371897,110.371893,110.371889,110.371884,110.371881,110.371878,110.371875,110.371868,110.371859,110.371849,110.371836,110.371822,110.371808,110.371797,110.371790,110.371779,110.371772,110.371766,110.371764,110.371766,110.371764,110.371773,110.371779,110.371785,110.371791,110.371798,110.371800,110.371794,110.371784,110.371770,110.371758,110.371748,110.371738,110.371728,110.371718,110.371705,110.371698,110.371690,110.371685,110.371677,110.371670,110.371663,110.371659,110.371657,110.371658,110.371662,110.371666,110.371669,110.371674,110.371675,110.371674,110.371675,110.371672,110.371672,110.371673,110.371685,110.371698,110.371720,110.371740,110.371757,110.371767,110.371771,110.371766,110.371764,110.371763,110.371768,110.371779,110.371781,110.371782,110.371779,110.371780,110.371769,110.371768,110.371764,110.371758,110.371753,110.371759,110.371761,110.371762,110.371762,110.371762,110.371763,110.371761,110.371761,110.371761,110.371761,110.371760,110.371759,110.371760,110.371760,110.371760,110.371776,110.371781,110.371782,110.371782,110.371782,110.371779,110.371785,110.371798,110.371805,110.371805,110.371801,110.371805,110.371807,110.371808,110.371807,110.371803,110.371799,110.371795,110.371790,110.371788,110.371786,110.371782,110.371779,110.371772,110.371764,110.371750,110.371742,110.371737,110.371734,110.371724,110.371714,110.371708,110.371698,110.371688,110.371690,110.371687,110.371683,110.371674,110.371677,110.371675,110.371672,110.371674,110.371679,110.371680,110.371691,110.371699,110.371726,110.371723,110.371749,110.371767,110.371775,110.371782,110.371785,110.371790,110.371662,110.371632,110.371614,110.371614,110.371600,110.371588,110.371592,110.371578,110.371565,110.371550,110.371543,110.371549,110.371536,110.371530,110.371529,110.371530,110.371532,110.371543,110.371546,110.371549,110.371552,110.371555,110.371559,110.371564,110.371567,110.371569,110.371574,110.371578,110.371581,110.371583,110.371582,110.371580,110.371578,110.371577,110.371577,110.371574,110.371570,110.371565,110.371561,110.371556,110.371559,110.371563,110.371563,110.371564,110.371567,110.371570,110.371571,110.371572,110.371544,110.371542,110.371549,110.371535,110.371528,110.371522,110.371520,110.371520,110.371536,110.371581,110.371639,110.371665,110.371685,110.371696,110.371711,110.371718,110.371728,110.371730,110.371710,110.371587,110.371551,110.371521,110.371491,110.371464,110.371429,110.371411,110.371420,110.371451,110.371480,110.371505,110.371542,110.371594,110.371638,110.371655,110.371661,110.371663,110.371663,110.371437,110.371203,110.371114,110.371082,110.371071,110.371068,110.370749,110.370711,110.370772,110.370861,110.370955,110.371043,110.371124,110.371195,110.371260,110.371317,110.371354,110.371369,110.371398,110.371435,110.371481,110.371535,110.371577,110.371613,110.371644,110.371677,110.371709,110.371740,110.371761,110.371785,110.371807,110.371827,110.371849,110.371875,110.371884,110.371892,110.371903,110.371910,110.371917,110.371925,110.371933,110.371938,110.371943,110.371948,110.371957,110.371962,110.371966,110.371969,110.371978,110.371990,110.371995,110.371996,110.371995,110.371987,110.371985,110.371987,110.371987,110.371987,110.371986,110.371985,110.371983,110.371981,110.371977,110.371976,110.371975,110.371974,110.371972,110.371968,110.371963,110.371959,110.371951,110.371945,110.371939,110.371934,110.371929,110.371926,110.371922,110.371917,110.371912,110.371911,110.371909,110.371906,110.371908,110.371907,110.371903,110.371898,110.371892,110.371887,110.371882,110.371881,110.371879,110.371875,110.371863,110.371838,110.371816,110.371806,110.371800,110.371797,110.371802,110.371806,110.371816,110.371822,110.371831,110.371837,110.371840,110.371842,110.371845,110.371846,110.371847,110.371848,110.371850,110.371851,110.371852,110.371854,110.371854,110.371858,110.371859,110.371861,110.371866,110.371868,110.371871,110.371873,110.371871,110.371867,110.371862,110.371855,110.371846,110.371839,110.371828,110.371817,110.371808,110.371803,110.371797,110.371788,110.371781,110.371776,110.371771,110.371770,110.371769,110.371770,110.371770,110.371775,110.371779,110.371782,110.371784,110.371783,110.371782,110.371780,110.371775,110.371770,110.371761,110.371750,110.371733,110.371725,110.371720,110.371718,110.371718,110.371716,110.371719,110.371726,110.371728,110.371728,110.371729,110.371733,110.371737,110.371741,110.371745,110.371743,110.371751,110.371763,110.371787,110.371796,110.371809,110.371814,110.371825,110.371832,110.371838,110.371845,110.371848,110.371881,110.371898,110.371890,110.371878,110.371879,110.371881,110.371901,110.371938,110.371963,110.371984,110.372008,110.372027,110.372037,110.372037,110.372035,110.372039,110.372040,110.372042,110.372044,110.372046,110.372056,110.372063,110.372067,110.372069,110.372072,110.372072,110.372064,110.372044,110.372036,110.372037,110.372037,110.372040,110.372049,110.372058,110.372069,110.372079,110.372089,110.372098,110.372103,110.372096,110.372094,110.372092,110.372092,110.372092,110.372121,110.372127,110.372113,110.372100,110.372092,110.372080,110.372077,110.372070,110.372072,110.372070,110.372074,110.372082,110.372097,110.372105,110.372115,110.372121,110.372125,110.372126,110.372127,110.372129,110.372129,110.372130,110.372130,110.372129,110.372128,110.372123,110.372121,110.372118,110.372116,110.372112,110.372107,110.372100,110.372094,110.372088,110.372082,110.372075,110.372069,110.372063,110.372056,110.372049,110.372042,110.372035,110.372033,110.372027,110.372017,110.372009,110.371994,110.371987,110.371980,110.371967,110.371958,110.371952,110.371949,110.371945,110.371938,110.371935,110.371932,110.371927,110.371920,110.371912,110.371907,110.371902,110.371899,110.371896,110.371893,110.371891,110.371889,110.371885,110.371875,110.371861,110.371852,110.371842,110.371833,110.371824,110.371814,110.371795,110.371776,110.371758,110.371747,110.371738,110.371739,110.371713,110.371698,110.371688,110.371687,110.371690,110.371681,110.371677,110.371673,110.371669,110.371666,110.371660,110.371654,110.371650,110.371647,110.371645,110.371650,110.371654,110.371657,110.371658,110.371662,110.371668,110.371676,110.371680,110.371686,110.371693,110.371700,110.371705,110.371711,110.371716,110.371720,110.371724,110.371729,110.371723,110.371717,110.371714,110.371716,110.371721,110.371727,110.371729,110.371738,110.371743,110.371737,110.371713,110.371698,110.371699,110.371702,110.371710,110.371720,110.371737,110.371752,110.371768,110.371784,110.371783,110.371778,110.371772,110.371776,110.371755,110.371734,110.371740,110.371741,110.371749,110.371763,110.371779,110.371791,110.371801,110.371810,110.371800,110.371808,110.371824,110.371837,110.371847,110.371859,110.371869,110.371889,110.371899,110.371908,110.371919,110.371928,110.371915,110.371878,110.371884,110.371895,110.371911,110.371911,110.371921,110.371934,110.371947,110.371968,110.371986,110.371996,110.372013,110.372026,110.372034,110.372044,110.372057,110.372070,110.372083,110.372117,110.372127,110.372151,110.372169,110.372183,110.372186,110.372207,110.372201,110.372199,110.372204,110.372204,110.372202,110.372201,110.372200,110.372195,110.372181,110.372169,110.372159,110.372155,110.372154,110.372153,110.372159,110.372168,110.372180,110.372189,110.372197,110.372206,110.372211,110.372213,110.372213,110.372212,110.372210,110.372214,110.372217,110.372221,110.372227,110.372237,110.372241,110.372244,110.372246,110.372248,110.372249,110.372247,110.372253,110.372263,110.372266,110.372265,110.372260,110.372256,110.372250,110.372240,110.372232,110.372224,110.372217,110.372210,110.372203,110.372198,110.372189,110.372183,110.372178,110.372171,110.372166,110.372161,110.372152,110.372157,110.372158,110.372154,110.372151,110.372145,110.372135,110.372124,110.372117,110.372112,110.372106,110.372096,110.372087,110.372076,110.372064,110.372053,110.372045,110.372042,110.372038,110.372036,110.372037,110.372032,110.372022,110.372012,110.371999,110.371979,110.371968,110.371938,110.371916,110.371902,110.371893,110.371886,110.371883,110.371875,110.371870,110.371867,110.371863,110.371859,110.371934,110.371937,110.371933,110.371969,110.371987,110.371996,110.371975,110.371980,110.371975,110.371967,110.371951,110.371949,110.371965,110.371964,110.371961,110.371958,110.371956,110.371955,110.371951,110.371944,110.371937,110.371930,110.371924,110.371924,110.371930,110.371927,110.371924,110.371925,110.371929,110.371936,110.371940,110.371934,110.371927,110.371920,110.371909,110.371900,110.371890,110.371881,110.371874,110.371860,110.371849,110.371842,110.371838,110.371834,110.371831,110.371828,110.371831,110.371835,110.371849,110.371855,110.371864,110.371871,110.371918,110.371939,110.371944,110.371953,110.371941,110.371909,110.371876,110.371847,110.371790,110.371763,110.371732,110.371709,110.371696,110.371689,110.371684,110.371682,110.371686,110.371691,110.371695,110.371696,110.371654,110.371610,110.371580,110.371542,110.371518,110.371505,110.371496,110.371492,110.371484,110.371482,110.371491,110.371505,110.371519,110.371503,110.371471,110.371410,110.371372,110.371366,110.371355,110.371335,110.371339,110.371331,110.371330,110.371313,110.371299,110.371296,110.371294,110.371294,110.371295,110.371295,110.371295,110.370794,110.370622,110.370586,110.370595,110.370600,110.370604,110.370607,110.370610,110.371642,110.372067,110.372261,110.372325,110.372391,110.372412,110.372464,110.372503,110.372527,110.372529,110.372495,110.372458,110.372398,110.372352,110.372308,110.372274,110.372226,110.372171,110.372149,110.372131,110.372116,110.372108,110.372096,110.372090,110.372077,110.372061,110.372047,110.372030,110.372011,110.371990,110.371973,110.371962,110.371947,110.371943,110.371939,110.371937,110.371935,110.371933,110.371929,110.371917,110.371914,110.371882,110.371844,110.371813,110.371787,110.371767,110.371745,110.371715,110.371681,110.371660,110.371646,110.371640,110.371629,110.371628,110.371642,110.371656,110.371672,110.371688,110.371693,110.371704,110.371711,110.371715,110.371716,110.371718,110.371718,110.371714,110.371711,110.371705,110.371695,110.371684,110.371679,110.371675,110.371676,110.371680,110.371685,110.371688,110.371689,110.371691,110.371692,110.371692,110.371696,110.371697,110.371696,110.371693,110.371694,110.371696,110.371697,110.371707,110.371712,110.371712,110.371704,110.371701,110.371702,110.371703,110.371704,110.371707,110.371708,110.371701,110.371691,110.371681,110.371669,110.371657,110.371653,110.371647,110.371643,110.371638,110.371640,110.371642,110.371638,110.371636,110.371638,110.371640,110.371642,110.371644,110.371645,110.371641,110.371637,110.371630,110.371624,110.371621,110.371619,110.371618,110.371617,110.371617,110.371615,110.371612,110.371617,110.371621,110.371622,110.371626,110.371626,110.371624,110.371626,110.371626,110.371629,110.371628,110.371626,110.371625,110.371624,110.371622,110.371622,110.371623,110.371623,110.371623,110.371619,110.371619,110.371610,110.371599,110.371588,110.371583,110.371575,110.371567,110.371561,110.371556,110.371551,110.371541,110.371536,110.371535,110.371541,110.371552,110.371560,110.371562,110.371567,110.371575,110.371587,110.371594,110.371595,110.371584,110.371586,110.371597,110.371580,110.371591,110.371593,110.371603,110.371605,110.371610,110.371607,110.371602,110.371603,110.371613,110.371623,110.371634,110.371646,110.371653,110.371656,110.371658,110.371657,110.371657,110.371657,110.371656,110.371656,110.371654,110.371650,110.371646,110.371642,110.371641,110.371640,110.371639,110.371638,110.371636,110.371639,110.371646,110.371651,110.371652,110.371654,110.371652,110.371649,110.371647,110.371645,110.371644,110.371648,110.371651,110.371659,110.371651,110.371643,110.371635,110.371626,110.371615,110.371609,110.371600,110.371590,110.371578,110.371571,110.371577,110.371553,110.371547,110.371542,110.371555,110.371564,110.371570,110.371572,110.371574,110.371569,110.371563,110.371566,110.371587,110.371594,110.371589,110.371588,110.371587,110.371583,110.371577,110.371585,110.371583,110.371581,110.371519,110.371503,110.371510,110.371522,110.371534,110.371544,110.371553,110.371557,110.371566,110.371573,110.371579,110.371585,110.371590,110.371594,110.371600,110.371601,110.371603,110.371606,110.371609,110.371609,110.371603,110.371604,110.371605,110.371608,110.371615,110.371614,110.371615,110.371612,110.371605,110.371603,110.371597,110.371594,110.371590,110.371589,110.371588,110.371588,110.371587,110.371575,110.371571,110.371568,110.371569,110.371567,110.371568,110.371565,110.371560,110.371561,110.371562,110.371562,110.371647,110.371683,110.371713,110.371731,110.371742,110.371742,110.371744,110.371718,110.371709,110.371672,110.371660,110.371648,110.371639,110.371633,110.371626,110.371621,110.371608,110.371604,110.371604,110.371609,110.371611,110.371614,110.371618,110.371626,110.371625,110.371626,110.371629,110.371627,110.371624,110.371628,110.371633,110.371637,110.371647,110.371650,110.371663,110.371681,110.371688,110.371692,110.371662,110.371649,110.371663,110.371664,110.371676,110.371679,110.371671,110.371662,110.371651,110.371634,110.371628,110.371626,110.371625,110.371625,110.371553,110.371523,110.371534,110.371546,110.371557,110.371572,110.371578,110.371568,110.371559,110.371535,110.371534,110.371550,110.371567,110.371559,110.371558,110.371562,110.371564,110.371567,110.371573,110.371574,110.371571,110.371565,110.371567,110.371573,110.371575,110.371582,110.371585,110.371591,110.371595,110.371594,110.371579,110.371572,110.371569,110.371565,110.371561,110.371560,110.371557,110.371556,110.371556,110.371558,110.371565,110.371567,110.371569,110.371570,110.371572,110.371575,110.371578,110.371585,110.371586,110.371587,110.371591,110.371598,110.371605,110.371616,110.371621,110.371626,110.371629,110.371625,110.371627,110.371635,110.371634,110.371632,110.371630,110.371633,110.371637,110.371636,110.371630,110.371628,110.371632,110.371636];
+		var iii =0;
+		//随机生成新的点，加入到轨迹中。
+		function dynamicLine(){
+		 // if(isvalid ==1)
+		  {
+		    isvalid =0;
+			
+			var lng = lngtt[iii];//110.371578;//lonti;//110.371578,34.589575
+			var lat = latt[iii];//34.589575 ;//lati;
+			iii ++;
+			var id = getRandom(1000);
+			var point = {"lng":lng,"lat":lat,"status":1,"id":id}
+			var makerPoints = [];
+			var newLinePoints = [];
+			var len;
+			makerPoints.push(point);			
+			addMarker(makerPoints);//增加对应该的轨迹点
+			points.push(point);
+			bPoints.push(new BMap.Point(lng,lat));
+			len = points.length;
+			newLinePoints = points.slice(len-2, len);//最后两个点用来画线。
+			addLine(newLinePoints);//增加轨迹线
+			setZoom(bPoints);
+		}
+			setTimeout(dynamicLine, 1);
+		}
+		//根据点信息实时更新地图显示范围，让轨迹完整显示。设置新的中心点和显示级别. 
+		//更新。设置不是每次增加点都重新设置显示范围。因为有可能会想放大了看。
+		function setZoom(bPoints){
+			var view = map.getViewport(eval(bPoints));
+			if(map.oldView != JSON.stringify(view)){
+				var mapZoom = view.zoom; 
+				var centerPoint = view.center; 
+				map.centerAndZoom(centerPoint,mapZoom);
+				map.oldView = JSON.stringify(view);
+			}
+		}
+   
+		//数据准备,
+		var points = [];//原始点信息数组
+		var bPoints = [];//百度化坐标数组。用于更新显示范围。
+		//地图操作开始
+		//setTimeout(dynamicLine, 1000);//动态生成新的点。
+		 var bearing1,bearing2,bearing3,bearing4;
+		 var dis1,dis2,dis3,dis4,dis5;
+		 var alng,lng1,lng2,lng3,lng4,lng5,alat,blng,blat,lat1,lat2,lat3,lat4,lat5;
+		 function showInfo2(e2) {
+		// if(!connetflg)
+		 { 
+		   // alert("请先连接机器人！");
+     
+			document.getElementById("waypoint").innerHTML =( e2.point.lng.toFixed(7)+ "," + e2.point.lat.toFixed(7));
+
+	
+		addMarkerlat( e2.point.lng, e2.point.lat,0);
+		addLine2point2(lati,lonti,e2.point.lat,e2.point.lng);
+	
+			lonti =e2.point.lng;
+			lati = e2.point.lat;
+
+
+        //json对象
+		    var jsoninf={ "type":"1" ,"lnt":"Bill" , "lat":"Gates" };
+				 jsoninf["lnt"]=e2.point.lng+'';
+				 jsoninf["lat"]=e2.point.lat+'';
+				ss = JSON.stringify(jsoninf);
+			    sendtopic =  devid+'/download/waypoints';
+				//可以如下修改firstName属性的值
+			console.log("savepoint send message"+sendtopic);
+			if(ss){
+				message = new Paho.MQTT.Message(ss);
+    
+				message.destinationName = sendtopic;
+
+		
+			    client.send(message);
+       
+		}
+		}
+       
+    }
+    map.addEventListener("rightclick",showInfo2);  
+	
+	
+	function savepoint() {
+			 
+			var jsoninf={ "type":"2" ,"lnt":"Bill" , "lat":"Gates" };
+				 jsoninf["lnt"]='0';
+				 jsoninf["lat"]='0';
+				ss = JSON.stringify(jsoninf);
+			    sendtopic =  devid+'/download/waypoints';
+				//可以如下修改firstName属性的值
+			console.log("savepoint send message"+sendtopic);
+			if(ss){
+				message = new Paho.MQTT.Message(ss);
+				message.destinationName = sendtopic;
+			    client.send(message);
+			}
+	}
+			
+	function clearpoint(){
+			var allOverlay = map.getOverlays();
+			for(var i = 0;i<allOverlay.length;i++) {
+			//删除指定经度的点
+			
+			map.removeOverlay(allOverlay[i]);
+			btn_cnt=0;
+		
+		}
+		var jsoninf={ "type":"3" ,"lnt":"Bill" , "lat":"Gates" };
+				 jsoninf["lnt"]='0';
+				 jsoninf["lat"]='0';
+				ss = JSON.stringify(jsoninf);
+			    sendtopic =  devid+'/download/waypoints';
+				//可以如下修改firstName属性的值
+			console.log("savepoint send message"+sendtopic);
+			if(ss){
+			   
+				message = new Paho.MQTT.Message(ss);
+				message.destinationName = sendtopic;
+			    client.send(message);
+				   
+			}
+
+	}
+	
+	
+		function carstop()
+	{
+		         
+				 if(!connetflg)alert("请先连接机器人！");
+			     console.log("into send message");
+			    
+			    sendtopic = devid+ '/download/control';
+				    //可以如下修改firstName属性的值
+            	messagebody = ''+'stop'+',' +'\r\n';
+			     console.log("savepoint send message"+sendtopic);
+                if(messagebody){
+                   
+                    message = new Paho.MQTT.Message(messagebody);
+                    message.destinationName = sendtopic;
+                    client.send(message);
+                       
+                }
+	
+	}
+	function coordinateSend() {
+	             
+				 if(!connetflg)alert("请先连接机器人！");
+			     console.log("into send message");
+			    
+			    sendtopic = devid+ '/download/control';
+				    //可以如下修改firstName属性的值
+                cmd =2;//跑起来 run
+				node =2;
+				
+				messagebody = ''+"start"+','+ node +'\r\n';
+				console.log("savepoint send message"+sendtopic);
+                if(messagebody){
+                   
+                    message = new Paho.MQTT.Message(messagebody);
+                    message.destinationName = sendtopic;
+                    client.send(message);
+                       
+                }
+	
+	}
+	function runforward() {
+	             
+				 if(!connetflg)alert("请先连接机器人！");
+			     console.log("into send message");
+			    
+			  var jsoninf={ "control":"1" ,"vel":"Bill" , "ang":"Gates" };
+		sendtopic = devid +'/download/control';
+				    //可以如下修改firstName属性的值
+
+
+			
+		 jsoninf["vel"] = '0.1';
+		 jsoninf["ang"] = '0.0';
+		ss = JSON.stringify(jsoninf);
+		console.log(jsoninf);
+		if(ss){
+		   // s = "{time:"+new Date().Format("yyyy-MM-dd hh:mm:ss")+", content:"+(s)+", from: web console}";
+			message = new Paho.MQTT.Message(ss);
+                    message.destinationName = sendtopic;
+                    client.send(message);
+                       
+                }
+	
+	}
+	function send_x_y(velocity,angle){
+	
+		 console.log("into send message");
+		 return ;
+		 //json对象
+		var jsoninf={ "control":"1" ,"vel":"0.0" , "ang":"0.0" };
+		sendtopic = devid +'/download/control';
+			//可以如下修改firstName属性的值
+		 jsoninf["vel"] = velocity.toFixed(1) +'';
+		 jsoninf["ang"] = angle.toFixed(1) +'';
+		ss = JSON.stringify(jsoninf);
+		console.log(jsoninf);
+		if(ss){
+		   // s = "{time:"+new Date().Format("yyyy-MM-dd hh:mm:ss")+", content:"+(s)+", from: web console}";
+			message = new Paho.MQTT.Message(ss);
+			message.destinationName = sendtopic;
+				client.send(message);
+		}
+	}
+
+		
+	
+
+var 	display_indicator_switch =0;
+function  display_indicator()
+{
+	if(!display_indicator_switch){
+
+	document.getElementById("indicator_table").style.display = 'block';
+
+	}else{
+
+	document.getElementById("indicator_table").style.display = 'none';
+
+	}
+	display_indicator_switch =!display_indicator_switch;
+   
+}
+var 	display_joystic_switch =0;
+function   display_joystic()
+{
+	if(!display_joystic_switch){
+
+	document.getElementById("joystic_div").style.display = 'block';
+
+	}else{
+
+	document.getElementById("joystic_div").style.display = 'none';
+
+	}
+	display_joystic_switch =!display_joystic_switch;
+   
+}
+
+
+ function Joystick(opt) {
+  if (!opt.zone) return;
+  var disabledColor = opt && opt.disabledColor || true;
+//300可以改成160看效果
+  this.options = {
+    mode: opt && opt.mode || 'static',
+    size: opt && opt.size || 200,
+    color: disabledColor ? 'ddd' : (opt && opt.color || '#eee'),
+    position: opt && opt.position || {
+      left: '50%',
+      top: '50%'
+    },
+    zone: opt && opt.zone
+  };
+
+ this.distance = 0;
+this.x =0;
+this.y =0;
+this.start_x =0;
+this.start_y =0;
+this.velocity =0;
+this.angcity =0;
+this.angle = null;
+this.time = null;
+}
+function select(val) {
+  return document.querySelector(val);
+}
+
+  /*  var static = nipplejs.create({
+        zone: document.getElementById('left'),
+        mode: 'static',
+        position: {left: '50%', top: '50%'},
+        color: 'red'
+    });
+	*/
+Joystick.prototype.init = function() {
+  var manager = nipplejs.create(this.options);
+  this.manager = manager;
+  this._on();
+  return this;
+}
+Joystick.prototype._on = function() {
+  var me = this;
+  this.manager
+    .on('start', function (evt, data) {
+	me.start_x = data.position.x;
+	me.start_y = data.position.y;
+      me.time = setInterval(() => {
+        me.onStart && me.onStart(me.distance,me.angle,me.velocity,me.angcity);
+      }, 100);
+    })
+    .on('move', function (evt, data) {
+	   
+	  //console.log("position:"+data.position.x,data.position.y);
+	  //console.log(data.direction.y);
+      if (data.direction) {
+	  	me.angle = data.direction.angle;
+		me.distance = data.distance;
+		me.velocity =  (me.start_y - data.position.y   )/135  ;
+	
+	    me.angcity =   (me.start_x - data.position.x  )/135 ;
+        //me.angle = data.direction.angle;
+       // me.distance = data.distance;
+      }
+    })
+    .on('end', function (evt, data) {
+	send_x_y(0.0,0.0);
+      clearInterval(me.time);
+      me.onEnd && me.onEnd();
+    });
+}
+
+
+
+ new Joystick({
+  zone: select('#joystic_div')
+})
+.init()
+.onStart = function(distance, angle, x ,y) {
+  // console.log('无人机向 => ' + angle + '移动' + distance + '个单位');
+  send_x_y(x,y);
+  switch(angle) {
+    case 'up':
+     // Game.jump(distance);
+      break;
+    case 'right':
+     // Game.forward(distance);
+      break;
+    case 'left':
+     // Game.backward(distance);
+	  break;
+	 case 'down':
+     // Game.fall(distance);
+	  break;
+	default:
+     // Game.stop();
+	   break;
+  }
+}
+
+
+
+/*一下是另一个功能*////
+   ////*****************************************/////
+   ////************************************************///
+   ////*****************************************/////
+   ////************************************************///
+	var map1;
+	//initMap2();
+	//百度地图api功能，GPS功能-单点沿直线运动
+	   //创建和初始化地图函数：
+    function initMap2(){
+		map1 = new BMap.Map("allmap");
+		map1.centerAndZoom(new BMap.Point(lonti, lati), 16);  //初始坐标点设置
+		map1.addControl(new BMap.MapTypeControl());   //添加地图类型控件
+		map1.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+
+        addMapOverlay2();//向地图添加覆盖物
+	 
+    }
+	 function addMapOverlay2(){
+		  var markers = [
+			{content:"编号:100110016",title:"智能机器人",imageOffset: {width:0,height:3},position:{lat:lati,lng:lonti}}
+		  ];
+      for(var index = 0; index < markers.length; index++ ){
+        var point = new BMap.Point(markers[index].position.lng,markers[index].position.lat);
+        var marker = new BMap.Marker(point,{icon:new BMap.Icon("http://api.map.baidu.com/lbsapi/createmap/images/icon.png",new BMap.Size(20,25),{
+          imageOffset: new BMap.Size(markers[index].imageOffset.width,markers[index].imageOffset.height)
+        })});
+        var label = new BMap.Label(markers[index].title,{offset: new BMap.Size(25,5)});
+        var opts = {
+          width: 200,
+          title: markers[index].title,
+          enableMessage: false
+        };
+        var infoWindow = new BMap.InfoWindow(markers[index].content,opts);
+        marker.setLabel(label);
+        addClickHandler(marker,infoWindow);
+        map1.addOverlay(marker);
+      };
+    }
+	var M_PI  =   3.1415926;
+    var EARTH_RADIUS = 6378.137 ;       //地球近似半径
+    function toRadian( point)
+	{
+		return (point*M_PI)/180.0;
+	}
+
+	function toDegree( point)
+	{
+		return point*180.0/ M_PI;
+	}
+	function fmod(X, Y) 
+	{ 
+	    return X%Y ;
+	}
+	function toBearing( angle)
+	{
+
+		var bearing = toDegree(angle)+ 360.0;
+		return fmod(bearing, 360);
+	}
+
+
+/*
+
+        This function will determine the bearing of the path to be travelled
+
+*/
+
+function getBearing( longtitude_start,  latitude_start,  longtitude_end,  latitude_end)
+{
+    var rad_latitude_start = toRadian(latitude_start);
+
+    var rad_latitude_end = toRadian(latitude_end);
+
+    var deltaLongtitude = toRadian(longtitude_end)- toRadian(longtitude_start);
+
+    var x = Math.sin(deltaLongtitude)*Math.cos(rad_latitude_end);
+
+    var y = Math.cos(rad_latitude_start)*Math.sin(rad_latitude_end)-Math.sin(rad_latitude_start)*Math.cos(rad_latitude_end)*Math.cos(deltaLongtitude);
+
+    return parseInt(toBearing(Math.atan2(x, y)));
+
+}
+    //点选起始点的坐标
+
+    function showInfo(e) {
+        document.getElementById("start").value = e.point.lng + "," + e.point.lat;
+
+        alert("起点的经纬度为：" + e.point.lng + "," + e.point.lat);
+    }
+   // map.addEventListener("click", showInfo);
+     
+	
+    function drive() {
+
+    //从输入框中获取起始点的坐标
+        var alng, alat, blng, blat;
+        send();
+        alng = document.getElementById("start").value.split(",")[0];
+        alat = document.getElementById("start").value.split(",")[1];
+        blng = document.getElementById("end").value.split(",")[0];
+        blat = document.getElementById("end").value.split(",")[1];
+
+  //     alert(alng + "\t" + alat + "\n" + blng + "\t" + blat);
+
+
+    //var myP1 = new BMap.Point(116.715375, 39.515095);  //起点设置为，河北廊坊站
+    //var myP2 = new BMap.Point(115.402794, 27.738408);  //终点设置为，江西新干站
+    //116.715375, 39.515095  115.402794, 27.738408
+    var myP1 = new BMap.Point(alng,alat);  
+    var myP2 = new BMap.Point(blng,blat);  
+
+    var myIcon = new BMap.Icon("http://lbsyun.baidu.com/jsdemo/img/Mario.png",
+
+        new BMap.Size(32, 70),
+        {
+            //单点标记图
+            imageOffset: new BMap.Size(0, 0)  //图片偏移量，以对准标记点中心
+        });
+    var driving2 = new BMap.DrivingRoute(map1,
+        {
+            renderOptions: { //结果呈现设置
+                map: map1,
+                autoViewport: true,  //检索结束后自动调整地图视野
+                enableDragging: true   //起终点可进行拖拽 
+            },
+            policy: BMAP_DRIVING_POLICY_LEAST_TIME //驾车方案的策略配置,最少时间
+
+
+        });    //创建一个驾车导航实例
+
+    driving2.search(myP1, myP2);    //显示检索路线
+
+    window.run = function () {
+        var driving = new BMap.DrivingRoute(map1);
+        driving.search(myP1, myP2);
+        driving.setSearchCompleteCallback(function () {
+            var pts = driving.getResults().getPlan(0).getRoute(0).getPath();  //通过驾车实例获取一系列点的数组
+            var paths = pts.length; //获得的点的数量
+
+            var marioMK = new BMap.Marker(pts[0], { icon: myIcon });
+            map1.addOverlay(marioMK);
+            i = 0;
+
+            function restMKPoint(i) {
+                marioMK.setPosition(pts[i]);
+                if (i < paths) {
+                    setTimeout(function () {
+                        i++;
+                        restMKPoint(i);
+                    },50);//5s钟走一步
+                }
+            }
+            setTimeout(function () {
+                restMKPoint(1);
+            }, 50)
+
+        });
+    }
+    setTimeout(function () {
+        run();
+
+    },1000);
+    }
+/***************************/
+	/**************************/
+	// 实时轨迹demo。  轨迹回放功能。在左边的地图上显示
+	// 实际运用的话可能ajax实时读取后台数据，加载到地图上。
+		//工具函数
+		// 获取随机数
+		//数据准备
+		var points1 = [
+		{"lng":116.239629,"lat":40.090765,"id":8,"time":"2015-11-25 14:00:01"},
+		{"lng":116.249629,"lat":40.070765,"id":2,"time":"2015-11-25 14:00:11"},
+		{"lng":116.242629,"lat":40.060765,"id":3,"time":"2015-11-25 14:00:22"},
+		{"lng":116.245629,"lat":40.0507659,"id":4,"time":"2015-11-25 14:00:15"},
+		{"lng":116.246629,"lat":40.060765,"id":5,"time":"2015-11-25 14:00:05"},
+		{"lng":116.249629,"lat":40.020765,"id":5,"time":"2015-11-24 14:00:05"},
+		{"lng":116.259629,"lat":40.040765,"id":5,"time":"2015-11-24 14:00:15"},
+		{"lng":116.269629,"lat":40.0007655,"id":5,"time":"2015-11-24 14:00:17"}
+		];
+		var donePoints = [];//已经显示的点。
+		var bpoints1 = [];//保存百度化的坐标组。用于重设地图的中心点和显示级别。
+		var timerArr=[];//定时器
+		var interval;
+		//地图操作开始
+			//添加线
+		function addLine1(points){
+			var linePoints = [];
+			var pointsLen = points.length;
+			if(pointsLen == 0){
+				return;
+			}
+			// 创建标注对象并添加到地图   
+			for(var i = 0;i <pointsLen;i++){
+				linePoints.push(new BMap.Point(points[i].lng,points[i].lat));
+			}
+			var polyline = new BMap.Polyline(linePoints, {strokeColor:"red", strokeWeight:2, strokeOpacity:0.5});   //创建折线
+			map1.addOverlay(polyline);   //增加折线
+		}
+		//根据时间选择。
+		function loadTrackByTime(){
+			//清除当前所有的定时器和地图上的覆盖物。
+			map1.clearOverlays();
+			for (var t = 0; t < timerArr.length; t++) {
+				clearTimeout(timerArr[t]);
+			};
+			timerArr = [];
+			clearInterval(interval);
+			bpoints1.length = 0;
+			donePoints.length = 0;
+			var dateBegin = document.getElementById('datepicker1').value;
+			var dateEnd = document.getElementById('datepicker2').value;
+			//从原始数组中查询符合条件的坐标点。
+			var pointsLen = points1.length;
+			var searchRes = [];//用来装符合条件的坐标信息。
+			//满足条件的放上去。
+			for (var i = 0; i < pointsLen; i++) {
+				if(dateDiff(points1[i].time,dateBegin)>0&&dateDiff(points1[i].time,dateEnd)<0){
+					searchRes.push(points1[i]);
+				}
+			};
+			trackTime(dateBegin);
+			for (var j = 0; j < searchRes.length; j++) {
+				var wait = dateDiff(searchRes[j].time,dateBegin)*1000;//等待时间。	
+				(function() {
+					var pointAg = [searchRes[j]],timer;//闭包
+					timer = setTimeout(function(){
+						var doneLen = donePoints.length;
+						var linePoints = [];
+						if(doneLen!=0){				
+							linePoints.push(donePoints[doneLen-1]);
+						}
+						linePoints.push(pointAg[0]);
+						donePoints.push(pointAg[0]);
+						addLine1(linePoints); //把原始数据的轨迹线添加到地图上。
+						
+						addMarker1(pointAg); 
+						bPoints1.push(new BMap.Point(pointAg[0].lng,pointAg[0].lat));
+						setZoom1(bPoints1); 
+					},wait);
+					timerArr.push(timer);
+				})();
+			};
+		}
+	
+		//根据点信息实时更新地图显示范围，让轨迹完整显示。设置新的中心点和显示级别
+		function setZoom1(bPoints){
+			var view = map1.getViewport(eval(bPoints));
+			var mapZoom = view.zoom; 
+			var centerPoint = view.center; 
+			map1.centerAndZoom(centerPoint,mapZoom);
+		}
+		//在轨迹点上创建图标，并添加点击事件，显示轨迹点信息。points,数组。
+		function addMarker1(points){
+			var pointsLen = points.length;
+			if(pointsLen == 0){
+				return;
+			}
+			var myIcon = new BMap.Icon("http://api.map.baidu.com/lbsapi/createmap/images/icon.png", new BMap.Size(10, 10), {
+				offset: new BMap.Size(10, 10) 
+			});
+			// 创建标注对象并添加到地图   
+			for(var i = 0;i <pointsLen;i++){
+				var point = new BMap.Point(points[i].lng,points[i].lat);
+				var marker = new BMap.Marker(point, {icon: myIcon});
+				map.addOverlay(marker); 
+				(function() {
+					var thePoint = points[i];
+					marker.addEventListener("click",function(){
+						showInfo(this,thePoint);
+					});
+				})();
+			}
+		}    
+		//点击轨迹点后显示信息窗口
+		function showInfo(thisMaker,point){
+			var sContent =
+			"<ul style='margin:0 0 5px 0;padding:0.2em 0'>"
+			+"<li style='line-height: 26px;font-size: 15px;'>"
+			+"<span style='width: 50px;display: inline-block;'>id：</span>" + point.id + "</li>"
+			+"<li style='line-height: 26px;font-size: 15px;'><span style='width: 50px;display: inline-block;'>状态：</span>"+point.time +"</li>"
+			+"</ul>";
+			var infoWindow = new BMap.InfoWindow(sContent);  // 创建信息窗口对象
+	   		thisMaker.openInfoWindow(infoWindow);   //图片加载完毕重绘infowindow
+	   	}
+	
+		//显示轨迹运行的时间
+		function trackTime(beginTime){
+			var beginTimestamp = Date.parse(new Date(beginTime));
+			interval = setInterval(function(){
+				var time =  getDate(beginTimestamp).time;
+				document.getElementById('realTime').innerHTML = "回放时间"+time;
+				beginTimestamp = beginTimestamp + 1000;
+			},1000)
+		}
+		//根据时间戳（毫秒），返回处理过后的时间。
+		function getDate(ms){
+			var res;
+			if(ms!=undefined){
+				var today = new Date()
+				today.setTime(ms);
+			}else{
+				var today = new Date();
+			}
+			var year,month,day,hour,minute,second;
+			year = today.getFullYear();
+			month = today.getMonth() + 1;
+			if(month<10){
+				month = '0'+month;
+			}
+			day = today.getDate();
+			if(day<10){
+				day = '0'+day;
+			}
+			hour = today.getHours();
+			if(hour<10){
+				hour = '0'+hour;
+			}
+			minute = today.getMinutes();
+			if(minute<10){
+				minute = '0'+minute;
+			}
+			second = today.getSeconds();
+			if(second<10){
+				second = '0'+second;
+			}
+			res={
+				'y':year,
+				'M':month,
+				'd':day,
+				'h':hour,
+				"m":minute,
+				"s":second,
+				"time":year+"-"+month+"-"+day+" "+hour+":"+minute+":"+second,
+				"date":year+"-"+month+"-"+day
+			}
+			return res;
+		}
+		//求时间差的方法
+		function dateDiff(date1, date2){ 
+			var type1 = typeof date1, type2 = typeof date2; 
+			if(type1 == 'string') 
+				date1 = stringToTime(date1); 
+			else if(date1.getTime) 
+				date1 = date1.getTime(); 
+			if(type2 == 'string') 
+				date2 = stringToTime(date2); 
+			else if(date2.getTime) 
+				date2 = date2.getTime(); 
+		    return (date1 - date2) / 1000;//结果是秒 
+		}
+		//字符串转成Time(dateDiff)所需方法 
+		function stringToTime(string){ 
+			var f = string.split(' ', 2); 
+			var d = (f[0] ? f[0] : '').split('-', 3); 
+			var t = (f[1] ? f[1] : '').split(':', 3); 
+			return (new Date( 
+				parseInt(d[0], 10) || null, 
+				(parseInt(d[1], 10) || 1)-1, 
+				parseInt(d[2], 10) || null, 
+				parseInt(t[0], 10) || null, 
+				parseInt(t[1], 10) || null, 
+				parseInt(t[2], 10) || null 
+				)).getTime();
+		}
+		
+	
+  </script>
+</html>
