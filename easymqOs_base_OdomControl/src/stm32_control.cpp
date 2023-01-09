@@ -75,6 +75,7 @@ int send2fd(unsigned char *dat,int len)
 	pthread_mutex_lock(&cmd_mutex); /*获取互斥锁*/
 	write(control_fd, dat,sBUFFERSIZE);  
 	pthread_mutex_unlock(&cmd_mutex); /*释放互斥锁*/
+	return 0;
 }
 /**********************************************************
  * 数据打包，将获取的cmd_vel信息打包并通过串口发送
@@ -361,6 +362,7 @@ int  odom_task(void(*pfunc)(sensors_msg_odom ))
 	}
 	close(control_fd);
 	printf("control_fd serial closed");     
+	return 0;
 }
 	
 
