@@ -127,7 +127,7 @@ char parse_json_IMU(char *buf)
 	
 	
     imu_callback(_msg_imu);
-	
+	return 0;
 }
 /*{
 	"sc":	1669031959,
@@ -197,6 +197,7 @@ char parse_json_odom(char *buf)
 	
 	odom_callback(_msg_odom);
 	//cmd_send2(vel,ang);
+	return 0;
 }
 char parse_json_encoders(char *buf)
 {
@@ -224,6 +225,7 @@ char parse_json_encoders(char *buf)
 	right_encoders = (cjson_right->valueint);
  
 	encoders_callback(left_encoders,right_encoders);
+	return 0;
 	//cmd_send2(vel,ang);
 }
 //订阅话题的回调
@@ -356,7 +358,7 @@ int  main (int argc, char ** argv)
      easymqos *e_demo = new easymqos(CLIENT_PUB);
  
     e_demo->Init_Pub("/sensors/odomcombine");//发布话题
-    e_demo->Set_broker("192.168.31.135");
+    e_demo->Set_broker("192.168.31.61");
     e_demo->Set_config_Pub();
 
     vector<string> topicStr_subscribe;  
