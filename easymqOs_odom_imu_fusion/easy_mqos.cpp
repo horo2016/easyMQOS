@@ -97,7 +97,7 @@ bool easymqos::Set_config_Pub()
 unsigned int  easymqos::publish_messages(unsigned int len,string message)
 {
   publish_message(len,(char *)message.c_str());
-
+  return 0;
 }
 // void parse_cjson(char *a)
 // {
