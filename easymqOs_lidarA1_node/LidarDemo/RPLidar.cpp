@@ -73,6 +73,7 @@ bool RPLidar::begin(char *dev)
 	cout << "2 " <<endl;
     _bined_serialdev->begin(dev,RPLIDAR_SERIAL_BAUDRATE);
 	cout << "over " <<endl;
+	  return true;
 }
 
 // close the currently opened serial interface
