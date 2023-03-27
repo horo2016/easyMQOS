@@ -201,7 +201,7 @@ void lidar_task(void(*pfunc)(lidar_t))
 	float prev_ang =0;
 	int wait_cnt =0,wait_cnt_times =0;
 	while(1){
-	//	usleep(5000);
+	  	usleep(5000);
 			  if(!fixing) {
 				
 				if(runLIDAR) {
