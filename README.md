@@ -21,12 +21,14 @@ easymqOs_opticalFlow_gl9306  GL9306光流传感器 串口接收 用于定位 调
 easymqos_waypoint_save   receive gps waypoints dats and save 接收规划路径的航点并保存     
 easymqOs_collect_datas   收集里程计和雷达数据 用于离线建图    
 neural_network_avoidance  采集正前方5个角度的激光雷达测距消息 使用神经网络完成避障功能  
-python                    使用python发布节点和接收
+python                    使用python发布节点和接收，支持发布图片  
+
 ### webjs的节点  
 指南针  
 轨迹航向显示  
 twist 键盘控制      
 baidu map 百度地图定位和路径规划
+traject 显示雷达点云、图片流等  
 
 #  安装使用
 首先在树莓派或者其他的Linux系统安装 mosquito   
