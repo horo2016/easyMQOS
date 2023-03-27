@@ -11,8 +11,6 @@ import time
 import struct 
 import threading
 
-width = 600 # Width Of The Game Window
-height = 600  # Height Of The Game Window
 
 SummarySensorData = []
 StepSizeValue = 1/10 # Step Size For Simulation
@@ -39,7 +37,7 @@ NumberOfSensors = 5
 inference_flg =0
 
 BotStartLocation =  2
-
+DetectCrash =0
 
 
 def getcmd(v,a):
@@ -47,30 +45,14 @@ def getcmd(v,a):
            }
     return  data
     
-def PointsFromAngle(angle):
-    ### Returns The Unit Direction Vector With Given Angle ###
-    return math.cos(angle),math.sin(angle)
 
-def AngleBetweenAndSide(vector1, vector2):
-    ### Returns The Angle Between Vectors And The Side Of Resultant Vector ###
-    vector1 = np.array(vector1)
-    vector2 = np.array(vector2)
-    side = 1 if(np.dot(vector1, vector2) < 0) else -1
-    return side,np.arccos(np.clip(np.dot(vector1, vector2), -1.0, 1.0))
-    
-def Move():
+def Inference():
     global  inference_flg
     global last_time
-    #cmdVel={"control":"1","vel":"0.1","ang":"0.1"};
-    #json_data = json.dumps(cmdVel)
-    #print(type(json_data))
-    #print(cmdVel.vel)
+
     while True:
-       
         if(inference_flg ==1):
-            
-            #_SensorsDatas = []
-            _SensorsDatas = np.append(SensorsData, 30)
+            _SensorsDatas = np.append(SensorsData, 30)#小车角度
             _SensorsDatas = np.append(_SensorsDatas, [0])
             
             print(_SensorsDatas[:-2])  ## Print The Sensor Data
@@ -82,154 +64,67 @@ def Move():
                 #print(DetectCrash.data)
                 DetectCrash = abs(np.round(DetectCrash.data[0][0]))
                 print(DetectCrash)
-                if(DetectCrash > 0):
+                if(DetectCrash > 0):#为1时
                     SignalData = _SensorsDatas[:-2]
-                    if(sum(SignalData[:2]) > sum(SignalData[-2:])):
-                        #DetectCrash = 3
-                        cmd =getcmd("0.0","-0.2")
-                        json_data = json.dumps(cmd)
-                        result = client.publish(cmd_vel_topic,json_data,0)
-                        # result: [0, 1]
-                        status = result[0]
-                        if status == 0:
-                            print(f"Send  to topic `{cmd_vel_topic}`")
-                        else:
-                            print(f"Failed to send message to topic {cmd_vel_topic}")
+                    if(sum(SignalData[:2]) > sum(SignalData[-2:])):#左边的空间比右边的空间大
+                        DetectCrash = 3
                     else:#右转
                         DetectCrash = 4
-                        cmd =getcmd("0.0","-0.2")
-                        json_data = json.dumps(cmd)
-                        result = client.publish(cmd_vel_topic,json_data,0)
-                        # result: [0, 1]
-                        status = result[0]
-                        if status == 0:
-                            print(f"Send  to topic `{cmd_vel_topic}`")
-                        else:
-                            print(f"Failed to send message to topic {cmd_vel_topic}")
-                      
-                else:#前进
-                    cmd =getcmd("0.1","0")
-                    json_data = json.dumps(cmd)
-                    result = client.publish(cmd_vel_topic,json_data,0)
-                    # result: [0, 1]
-                    status = result[0]
-                    if status == 0:
-                        print(f"Send  to topic `{cmd_vel_topic}`")
-                    else:
-                        print(f"Failed to send message to topic {cmd_vel_topic}")
-                        #print(type(json_data))
                 
                 print(DetectCrash)
                 SignalData = _SensorsDatas[:-2]
-                time.sleep(0.1)
+                time.sleep(0.01)
             SensorsData.clear()
             inference_flg =0
         else:
-            time.sleep(0.1)#10ms
+            time.sleep(0.1)#100ms
         #t=time.time()
         #print (int(round(t * 1000)))
      
 #作为子线程开启
-th = threading.Thread(target=Move)
+th = threading.Thread(target=Inference)
 th.setDaemon(True)
 th.start()
 
-class Robot:
-    def __init__(self,left_value,right_value):
-        self.wideth=100
-        self.linear_velocity =0
-        self.ang_velocity = 0
-        self.lValue=left_value
-        self.rValue=right_value
-
-    def get_linera_velocity(self):
-        self.linear_velocity =(self.rValue + self.lValue) / 2
-        return self.linear_velocity
-
-    def get_linera_velocity(self):
-        return (self.rValue - self.rValue) / self.wideth
-    def run(self):
-        print(self.linear_velocity,self.ang_velocity)
-
-
-class BotEnv:    
-    def __init__(self):
-        ### Initializing Environment Variables ###
-        global BotStartLocation
-        self.robot=Robot(0,0)
-        self.crashed = False
-        self.DetectCrash = 0
-        
-
-        
-    def _step(self, action, CrashStep=0):
-        #左转
-        if action == 3:
-            self.robot.ang_velocity =0.1 # 左转
-            self.robot.linear_velocity = 0
-        ## 右转
-        elif action == 4:
-            self.robot.ang_velocity = -0.1  #
-            self.robot.linear_velocity = 0
-        ## 直行
-        elif action == 5:
-            self.robot.ang_velocity = 0  #
-            self.robot.linear_velocity = 0.2
-        self.robot.run()
-        ## Get The Current Location And The Sensors Data At Given Point.
-        #x, y = self.Bot.position        ## Get The Bot Position
-        SensorsData = self.AllSensorSensorsData(0, 0, 0)  ## Get All The Sensor Data
-        SensorsData = np.append(SensorsData, 30)
-        SensorsData = np.append(SensorsData, [0])
-        print(SensorsData[:-2])  ## Print The Sensor Data
-        DataTensor = torch.Tensor(SensorsData[:-1]).view(1,-1)
-        if (model != None):
-            ## Get Decision From Neural Network If There Is A Collison
-            self.DetectCrash = model(Variable(DataTensor))
-            print("inference:")
-            print(self.DetectCrash.data)
-            self.DetectCrash = abs(np.round(self.DetectCrash.data[0][0]))
-            print(self.DetectCrash)
-            if(self.DetectCrash > 0):
-                SignalData = SensorsData[:-2]
-                if(sum(SignalData[:2]) > sum(SignalData[-2:])):
-                 self.DetectCrash = 3
-                else:
-                 self.DetectCrash = 4
-            
+def Move():
+    
+    cmd =getcmd("0.0","0.0") 
+    while True:
        
-        SignalData = SensorsData[:-2]
-        return
-
-    def AllSensorSensorsData(self, x, y, angle):
-        SensorsData = []
-        NumberOfSensors = 5
-
-        ## Generate Sensors
-        ## 从传感器中读取数据
-        for i in range(NumberOfSensors):
-            SensorsData.append(int(self.SensorReading(i, x, y, angle)))
+        if (DetectCrash > 0):
+            
+            for i in range(3):
+                if (DetectCrash==3):
+                    cmd =getcmd("0.0","-0.2")
+                else:
+                    cmd =getcmd("0.0","0.2")
+                json_data = json.dumps(cmd)
+                result = client.publish(cmd_vel_topic,json_data,0)
+                # result: [0, 1]
+                status = result[0]
+                if status == 0:
+                    print(f"Send  to topic `{cmd_vel_topic}`")
+                else:
+                    print(f"Failed to send message to topic {cmd_vel_topic}")
+                time.sleep(0.1)
+        else:#前进
+            cmd =getcmd("0.1","0")
+            json_data = json.dumps(cmd)
+            result = client.publish(cmd_vel_topic,json_data,0)
+            # result: [0, 1]
+            status = result[0]
+            if status == 0:
+                print(f"Send  to topic `{cmd_vel_topic}`")
+            else:
+                print(f"Failed to send message to topic {cmd_vel_topic}")
+        time.sleep(0.01)
         
-        return SensorsData
+#作为子线程开启
+th1 = threading.Thread(target=Move)
+th1.setDaemon(True)
+th1.start()
 
-    def SensorReading(self, sensor, x, y, angle):
-        ###随机产生数据 ###
-        n = random.randint(1,10)
-        if (n%2)==0:
-            distance = random.randint(10,101)
-        else:
-            distance =100
-        return distance
 
-        
-    def Rotate(self,origin, point, angle):
-        ###控制机器人旋转 ###
-        x1, y1 = origin
-        x2, y2 = point
-        final_x = x1 + math.cos(angle) * (x2 - x1) - math.sin(angle) * (y2 - y1)
-        final_y = y1 + math.sin(angle) * (x2 - x1) + math.cos(angle) * (y2 - y1)
-        final_y = abs(width - final_y)
-        return final_x,final_y
         
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code "+str(rc))
@@ -291,13 +186,4 @@ if __name__ == "__main__":
     client.subscribe(lidar_topic)
     #publish(client)
     client.loop_forever()
-    '''for i in range(2000):
-        
-        if (env.DetectCrash > 0):
-            DrivingSide = env.DetectCrash
-            
-            for i in range(3):env._step(DrivingSide)
-        else:
-            x = 5
-            env._step(x)'''
 
