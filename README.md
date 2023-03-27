@@ -19,8 +19,9 @@ easymqOs_gpsKalmanfilter   gps filter node publish gps node   gps滤波节点并
 easymqOs_lidarA1_node    slamtech lidar a1 publish distance   发布雷达360度的距离    
 easymqOs_opticalFlow_gl9306  GL9306光流传感器 串口接收 用于定位 调试中
 easymqos_waypoint_save   receive gps waypoints dats and save 接收规划路径的航点并保存     
-easymqOs_collect_datas   收集里程计和雷达数据 用于离线建图   
-
+easymqOs_collect_datas   收集里程计和雷达数据 用于离线建图    
+neural_network_avoidance  采集正前方5个角度的激光雷达测距消息 使用神经网络完成避障功能  
+python                    使用python发布节点和接收
 ### webjs的节点  
 指南针  
 轨迹航向显示  
