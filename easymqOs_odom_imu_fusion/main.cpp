@@ -127,7 +127,7 @@ char parse_json_IMU(char *buf)
 	
 	
     imu_callback(_msg_imu);
-	return 0;
+	 return 0;
 }
 /*{
 	"sc":	1669031959,
@@ -197,7 +197,7 @@ char parse_json_odom(char *buf)
 	
 	odom_callback(_msg_odom);
 	//cmd_send2(vel,ang);
-	return 0;
+	 return 0;
 }
 char parse_json_encoders(char *buf)
 {
@@ -225,8 +225,7 @@ char parse_json_encoders(char *buf)
 	right_encoders = (cjson_right->valueint);
  
 	encoders_callback(left_encoders,right_encoders);
-	return 0;
-	//cmd_send2(vel,ang);
+	 return 0;
 }
 //订阅话题的回调
 void my_message_callback(struct mosquitto *mosq, void *obj, const struct mosquitto_message *message)
@@ -306,7 +305,9 @@ void odom_public_callback(sensors_msg_odom _odom_msg)
   if(!root) {
          printf("get root faild !\n");
      }
-    
+    float Dl = (_odom_msg.left_encoders)*0.000203;
+	float Dr = (_odom_msg.right_encoders)*0.000203;
+	float Dc = (Dl+Dr)/2.0;
     cJSON_AddItemToObject(root, "sc",cJSON_CreateNumber(_odom_msg.stamp_ss)); 
     cJSON_AddItemToObject(root, "ms",cJSON_CreateNumber(_odom_msg.stamp_ms)); 
     cJSON_AddItemToObject(root, "px", cJSON_CreateNumber(_odom_msg.position.x));//
@@ -314,6 +315,7 @@ void odom_public_callback(sensors_msg_odom _odom_msg)
     cJSON_AddItemToObject(root, "pz", cJSON_CreateNumber(_odom_msg.position.z));//
     cJSON_AddItemToObject(root, "vx",cJSON_CreateNumber(_odom_msg.linear_velocity.x)); 
     cJSON_AddItemToObject(root, "vz",cJSON_CreateNumber(_odom_msg.angular_velocity.z)); 
+	cJSON_AddItemToObject(root, "dx",cJSON_CreateNumber(Dc)); 
 	//四元数
     cJSON_AddItemToObject(root, "ox", cJSON_CreateNumber(_odom_msg.orientation.x));
     cJSON_AddItemToObject(root, "oy", cJSON_CreateNumber(_odom_msg.orientation.y));
