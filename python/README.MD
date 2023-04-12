@@ -6,5 +6,5 @@ from paho.mqtt import client as mqtt_client
 
 
 # video_detect.py 
-[image]!https://github.com/horo2016/easyMQOS/blob/main/python/1.png
+![目标检测](https://github.com/horo2016/easyMQOS/blob/main/python/1.png)
 
