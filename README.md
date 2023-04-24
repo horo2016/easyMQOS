@@ -25,7 +25,8 @@ easymqOs_detectDistance_vl53  收集 vl53l0的测距数据用于神经网络避�
 neural_network_avoidance  采集正前方5个角度的激光雷达测距消息 使用神经网络完成避障功能  
 
 ### python 节点  
-使用python发布节点和接收，支持发布图片  
+使用python发布节点和接收，支持发布图片  。
+跑深度学习 摄像头实时目标检测，
 
 ### webjs的节点  
 指南针  
