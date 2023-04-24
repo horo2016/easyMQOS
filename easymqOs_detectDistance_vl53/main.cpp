@@ -63,11 +63,11 @@ void vl53_callback(char* _msg)
     
     cJSON_AddItemToObject(root, "sc",cJSON_CreateNumber(0)); 
     cJSON_AddItemToObject(root, "ms",cJSON_CreateNumber(0)); 
-    cJSON_AddItemToObject(root, "left", cJSON_CreateNumber(_msg[0]));//
-    cJSON_AddItemToObject(root, "head",cJSON_CreateNumber(_msg[1]));//
-    cJSON_AddItemToObject(root, "right", cJSON_CreateNumber(_msg[2]));//
+    cJSON_AddItemToObject(root, "left", cJSON_CreateNumber(_msg[0]+_msg[1]*256));//
+    cJSON_AddItemToObject(root, "head",cJSON_CreateNumber(_msg[2] + _msg[3]*256));//
+    cJSON_AddItemToObject(root, "right", cJSON_CreateNumber(_msg[4]+ _msg[5]*256));//
    
-
+    
    	#endif
     memcpy(value_buf,cJSON_Print(root),strlen(cJSON_Print(root)));
      
