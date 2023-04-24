@@ -89,7 +89,7 @@ static u8 VL_IIC_Wait_Ack(void)
 		{
 			VL53_I2c_Stop();
             
-            printf("time up \n");
+           
 			return 1;
 		}
 	}
