@@ -49,7 +49,7 @@ void gps_filter_callback(Location gpsval,float h,float vel)
          printf("get root faild !\n");
      }else printf("get root success!\n");
 
-    cJSON_AddItemToObject(root, "\"isvalid\"", cJSON_CreateNumber(1));
+    cJSON_AddItemToObject(root, "\"isvalid\"", cJSON_CreateNumber(1));//在web中解析需要 去掉其中的引号 先标记mark   20230523
     cJSON_AddItemToObject(root, "\"lonti\"", cJSON_CreateNumber(gpsval.lng));//ìí?óname?úμ?
     cJSON_AddItemToObject(root, "\"lati\"",cJSON_CreateNumber(gpsval.lat));//ìí?óname?úμ?
     cJSON_AddItemToObject(root, "\"gpsheading\"", cJSON_CreateNumber(h));//
