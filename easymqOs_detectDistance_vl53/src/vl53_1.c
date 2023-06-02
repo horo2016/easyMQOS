@@ -58,7 +58,7 @@ static u8 VL_IIC_Wait_Ack(void)
 		{
 			VL53_I2c_Stop();
             
-           
+            //printf("time up \n");
 			return 1;
 		}
 	}
@@ -325,11 +325,11 @@ static uint16_t makeuint16(int lsb, int msb) {
 		
 		
 			ret= VL_IIC_Read_1Byte(address,VL53L0X_REG_PRE_RANGE_CONFIG_VCSEL_PERIOD,&val1);
-		if(ret) printf("read failed \n");
+		if(ret) printf("1 read failed \n");
 			printf("PRE_RANGE_CONFIG_VCSEL_PERIOD : \n"); 
 			printf("%d \n",val1);
 			ret= VL_IIC_Read_1Byte(address,VL53L0X_REG_FINAL_RANGE_CONFIG_VCSEL_PERIOD,&val1);
-			if(ret) printf("read failed \n");
+			if(ret) printf("1 read failed \n");
 			printf("FINAL_RANGE_CONFIG_VCSEL_PERIOD : \n"); 
 			printf("%d \n",val1);
 	}
@@ -350,7 +350,7 @@ static uint16_t makeuint16(int lsb, int msb) {
         while (cnt < 100) { // 1 second waiting time max
             delay(10);
                 ret= VL_IIC_Read_1Byte(address,VL53L0X_REG_RESULT_RANGE_STATUS,&val1);
-            if(ret) printf("read failed \n");        
+         //   if(ret) printf("1 read failed \n");        
             if (val1 & 0x01) break;
             cnt++;
         }
@@ -380,14 +380,25 @@ void set_callback_function(char* _msg ,void(*pfunc)(char*))
 }
 void vl53_task(void (*func)(char*))
 {
-	unsigned short buffer[3];
+	unsigned char buffer[6];
 	while(1){
-
-	buffer[0]=	main_1();
-	buffer[1]=	main_2();
-	buffer[2]=	main_3();
-	
+        unsigned short d1 = main_1();
+	if(d1>20 && d1 <8190){
+	buffer[0]=	d1;
+	buffer[1]= d1>>8;
+	}
+	unsigned short d2 = main_2();
+	if(d2>20 && d2<8190){
+	buffer[2]=	d2;
+	buffer[3] = d2>>8;
+	}
+	unsigned short d3 = main_3();
+	if(d3>20 && d3<8190){
+	buffer[4]=	d3;
+	buffer[5]=d3>>8;
+	}
+  printf("%d,%d,%d \n ",main_1(),main_2(),main_3());
    set_callback_function((char *) buffer,func);
-
+usleep(35000);
 	}
 }
