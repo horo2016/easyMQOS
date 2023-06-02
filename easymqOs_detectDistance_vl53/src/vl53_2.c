@@ -52,7 +52,7 @@ orangepi@orangepizero2:~/wiringOP-master$ ls
  
 
 
-static void VL53_I2c_Start(void)
+static void VL53_I2c_Start_CH2(void)
 {
     VL53_SDA_D_OUT_CH2;
     VL53_SDA_SET_CH2;
@@ -63,7 +63,7 @@ static void VL53_I2c_Start(void)
     VL53_SCL_CLR_CH2;
 
 }
-static void VL53_I2c_Stop(void)
+static void VL53_I2c_Stop_CH2(void)
 {
     VL53_SDA_D_OUT_CH2;   // 设置SDA为输出方向
 	VL53_SCL_CLR_CH2;  
@@ -74,7 +74,7 @@ static void VL53_I2c_Stop(void)
     delayMicroseconds(4);
     //VL53_SDA_D_IN_CH2;       //设置SDA为输RU方向
 }
-static u8 VL_IIC_Wait_Ack(void)
+static u8 VL_IIC_Wait_Ack_CH2(void)
 {
 	int ucErrTime=0;
 	VL53_SDA_D_IN_CH2;  //SDA设置为输入  
@@ -87,9 +87,9 @@ static u8 VL_IIC_Wait_Ack(void)
 		ucErrTime++;
 		if(ucErrTime>250)
 		{
-			VL53_I2c_Stop();
+			VL53_I2c_Stop_CH2();
             
-           
+           // printf("time up \n");
 			return 1;
 		}
 	}
@@ -98,7 +98,7 @@ static u8 VL_IIC_Wait_Ack(void)
 }
 
 //产生ACK应答
-static void VL_IIC_Ack(void)
+static void VL_IIC_Ack_CH2(void)
 {
 	VL53_SCL_CLR_CH2;
 	 VL53_SDA_D_OUT_CH2;
@@ -110,7 +110,7 @@ static void VL_IIC_Ack(void)
 }
 
 //不产生ACK应答		    
-static void VL_IIC_NAck(void)
+static void VL_IIC_NAck_CH2(void)
 {
 	VL53_SCL_CLR_CH2;
 	 VL53_SDA_D_OUT_CH2;
@@ -124,7 +124,7 @@ static void VL_IIC_NAck(void)
 //返回从机有无应答
 //1，有应答
 //0，无应答			  
-static void VL_IIC_Send_Byte(unsigned char txd)
+static void VL_IIC_Send_Byte_CH2(unsigned char txd)
 {                        
     unsigned char t;   
 	VL53_SDA_D_OUT_CH2; 	    
@@ -147,7 +147,7 @@ static void VL_IIC_Send_Byte(unsigned char txd)
 		delayMicroseconds(2);
     }	 
 }
-static unsigned char VL_IIC_Read_Byte(void)
+static unsigned char VL_IIC_Read_Byte_CH2(void)
 {
 	unsigned char i,receive=0;
 	VL53_SDA_D_IN_CH2;//
@@ -170,80 +170,80 @@ static unsigned char VL_IIC_Read_Byte(void)
 
 
 //IIC写一个字节数据
-static unsigned char VL_IIC_Write_1Byte(unsigned char SlaveAddress, unsigned char REG_Address,unsigned char REG_data)
+static unsigned char VL_IIC_Write_1Byte_CH2(unsigned char SlaveAddress, unsigned char REG_Address,unsigned char REG_data)
 {
-	VL53_I2c_Start();
-	VL_IIC_Send_Byte(SlaveAddress);
-	if(VL_IIC_Wait_Ack())
+	VL53_I2c_Start_CH2();
+	VL_IIC_Send_Byte_CH2(SlaveAddress);
+	if(VL_IIC_Wait_Ack_CH2())
 	{
-		VL53_I2c_Stop();//释放总线
+		VL53_I2c_Stop_CH2();//释放总线
 		return 1;//没应答则退出
 
 	}
-	VL_IIC_Send_Byte(REG_Address);
-	VL_IIC_Wait_Ack();	
+	VL_IIC_Send_Byte_CH2(REG_Address);
+	VL_IIC_Wait_Ack_CH2();	
 	delayMicroseconds(5);
-	VL_IIC_Send_Byte(REG_data);
-	VL_IIC_Wait_Ack();	
-	VL53_I2c_Stop();
+	VL_IIC_Send_Byte_CH2(REG_data);
+	VL_IIC_Wait_Ack_CH2();	
+	VL53_I2c_Stop_CH2();
 
 	return 0;
 }
 
 
 //IIC读一个字节数据
-static u8 VL_IIC_Read_1Byte(u8 SlaveAddress, u8 REG_Address,u8 *REG_data)
+static u8 VL_IIC_Read_1Byte_CH2(u8 SlaveAddress, u8 REG_Address,u8 *REG_data)
 {
-	VL53_I2c_Start();
-	VL_IIC_Send_Byte(SlaveAddress);//发写命令
-	if(VL_IIC_Wait_Ack())
+	VL53_I2c_Start_CH2();
+	VL_IIC_Send_Byte_CH2(SlaveAddress);//发写命令
+	if(VL_IIC_Wait_Ack_CH2())
 	{
-		 VL53_I2c_Stop();//释放总线
+		 VL53_I2c_Stop_CH2();//释放总线
 		 return 1;//没应答则退出
 	}		
-	VL_IIC_Send_Byte(REG_Address);
-	VL_IIC_Wait_Ack();
+	VL_IIC_Send_Byte_CH2(REG_Address);
+	VL_IIC_Wait_Ack_CH2();
 	 delayMicroseconds(5);
-	VL53_I2c_Start(); 
-	VL_IIC_Send_Byte(SlaveAddress|0x01);//发读命令
-	VL_IIC_Wait_Ack();
-	*REG_data = VL_IIC_Read_Byte();
-	VL53_I2c_Stop();
+	VL53_I2c_Start_CH2(); 
+	VL_IIC_Send_Byte_CH2(SlaveAddress|0x01);//发读命令
+	VL_IIC_Wait_Ack_CH2();
+	*REG_data = VL_IIC_Read_Byte_CH2();
+	VL53_I2c_Stop_CH2();
 
 	return 0;
 }
 
 //I2C读多个字节数据
-static uint8_t VL_I2C_Read_nByte(uint8_t SlaveAddress, uint8_t REG_Address, uint8_t *buf, uint16_t len)
+static uint8_t VL_I2C_Read_nByte_ch2(uint8_t SlaveAddress, uint8_t REG_Address, uint8_t *buf, uint16_t len)
 {
-	VL53_I2c_Start();
-	VL_IIC_Send_Byte(SlaveAddress);//发写命令
-	if(VL_IIC_Wait_Ack()) 
+	VL53_I2c_Start_CH2();
+	VL_IIC_Send_Byte_CH2(SlaveAddress);//发写命令
+	if(VL_IIC_Wait_Ack_CH2()) 
 	{
-		VL53_I2c_Stop();//释放总线
+		VL53_I2c_Stop_CH2();//释放总线
 		return 1;//没应答则退出
 	}
-	VL_IIC_Send_Byte(REG_Address);
-	VL_IIC_Wait_Ack();
+	VL_IIC_Send_Byte_CH2(REG_Address);
+	VL_IIC_Wait_Ack_CH2();
 	 delayMicroseconds(5);
-	VL53_I2c_Start(); 
-	VL_IIC_Send_Byte(SlaveAddress|0x01);//发读命令
-	VL_IIC_Wait_Ack();
+	VL53_I2c_Start_CH2(); 
+	VL_IIC_Send_Byte_CH2(SlaveAddress|0x01);//发读命令
+	VL_IIC_Wait_Ack_CH2();
 	while(len)
 	{
-		*buf = VL_IIC_Read_Byte();
+		*buf = VL_IIC_Read_Byte_CH2();
 		if(1 == len)
 		{
-			VL_IIC_NAck();
+			VL_IIC_NAck_CH2;
 		}
 		else
 		{
-			VL_IIC_Ack();
+			VL_IIC_Ack_CH2();
 		}
 		buf++;
 		len--;
 	}
-	VL53_I2c_Stop();
+	VL53_I2c_Stop_CH2();
 
 	return 0;
 }
@@ -251,21 +251,21 @@ static uint8_t VL_I2C_Read_nByte(uint8_t SlaveAddress, uint8_t REG_Address, uint
 //I2C写多个字节数据
 static uint8_t VL_I2C_Write_nByte(uint8_t SlaveAddress, uint8_t REG_Address, uint8_t *buf, uint16_t len)
 {
-	VL53_I2c_Start();
-	VL_IIC_Send_Byte(SlaveAddress);//发写命令
-	if(VL_IIC_Wait_Ack()) 
+	VL53_I2c_Start_CH2();
+	VL_IIC_Send_Byte_CH2(SlaveAddress);//发写命令
+	if(VL_IIC_Wait_Ack_CH2()) 
 	{
-		VL53_I2c_Stop();//释放总线
+		VL53_I2c_Stop_CH2();//释放总线
 		return 1;//没应答则退出
 	}
-	VL_IIC_Send_Byte(REG_Address);
-	VL_IIC_Wait_Ack();
+	VL_IIC_Send_Byte_CH2(REG_Address);
+	VL_IIC_Wait_Ack_CH2();
 	while(len--)
 	{
-		VL_IIC_Send_Byte(*buf++);
-		VL_IIC_Wait_Ack();
+		VL_IIC_Send_Byte_CH2(*buf++);
+		VL_IIC_Wait_Ack_CH2();
 	}
-	VL53_I2c_Stop();
+	VL53_I2c_Stop_CH2();
 
 	return  0;
 }
@@ -307,12 +307,12 @@ static int initI2c()
     // INT_EDGE_SETUP：保持原有的GPIO初始方式
     //int wiringPiI2CSetup(int devId);
     //wiringPiISR(BTN_INTERRUPT, INT_EDGE_FALLING, &irqHandler);
-    pinMode(PIN_SDA, OUTPUT);
-    pinMode(PIN_SCL, OUTPUT);
+    pinMode(PIN_SDA_2, OUTPUT);
+    pinMode(PIN_SCL_2, OUTPUT);
     
 
-    digitalWrite(PIN_SCL, HIGH);
-    digitalWrite(PIN_SDA, HIGH);
+    digitalWrite(PIN_SCL_2, HIGH);
+    digitalWrite(PIN_SDA_2, HIGH);
     return 0;
 }
 static uint16_t makeuint16(int lsb, int msb) {
@@ -336,18 +336,18 @@ int main_2()
     initI2c();          //spi的初始化
     
  
-      ret= VL_IIC_Read_1Byte(address,VL53L0X_REG_IDENTIFICATION_MODEL_ID,&val1);
-   if(ret) printf("read failed \n");
+      ret= VL_IIC_Read_1Byte_CH2(address,VL53L0X_REG_IDENTIFICATION_MODEL_ID,&val1);
+   if(ret) printf("2 read failed \n");
     printf("Device ID: \n"); 
     printf("0x%x \n",val1);
 
-    ret= VL_IIC_Read_1Byte(address,VL53L0X_REG_C1_ID,&val1);
-   if(ret) printf("read failed \n");
+    ret= VL_IIC_Read_1Byte_CH2(address,VL53L0X_REG_C1_ID,&val1);
+   if(ret) printf("2 read failed \n");
 
    printf("C1 ID: \n"); 
    printf("0x%x \n",val1);  
-    ret= VL_IIC_Read_1Byte(address,VL53L0X_REG_IDENTIFICATION_REVISION_ID,&val1);
-   if(ret) printf("read failed \n");
+    ret= VL_IIC_Read_1Byte_CH2(address,VL53L0X_REG_IDENTIFICATION_REVISION_ID,&val1);
+   if(ret) printf("2 read failed \n");
 
    printf("Revision ID: \n"); 
    printf("0x%x \n",val1);   
@@ -355,39 +355,39 @@ int main_2()
  
    
   
-    ret= VL_IIC_Read_1Byte(address,VL53L0X_REG_PRE_RANGE_CONFIG_VCSEL_PERIOD,&val1);
-   if(ret) printf("read failed \n");
+    ret= VL_IIC_Read_1Byte_CH2(address,VL53L0X_REG_PRE_RANGE_CONFIG_VCSEL_PERIOD,&val1);
+   if(ret) printf("2 read failed \n");
     printf("PRE_RANGE_CONFIG_VCSEL_PERIOD : \n"); 
     printf("%d \n",val1);
-    ret= VL_IIC_Read_1Byte(address,VL53L0X_REG_FINAL_RANGE_CONFIG_VCSEL_PERIOD,&val1);
-    if(ret) printf("read failed \n");
+    ret= VL_IIC_Read_1Byte_CH2(address,VL53L0X_REG_FINAL_RANGE_CONFIG_VCSEL_PERIOD,&val1);
+    if(ret) printf("2 read failed \n");
     printf("FINAL_RANGE_CONFIG_VCSEL_PERIOD : \n"); 
     printf("%d \n",val1);
 	}
  
-        VL_IIC_Write_1Byte(address,0x80, 0x01);
-        VL_IIC_Write_1Byte(address,0xFF, 0x01);
-        VL_IIC_Write_1Byte(address,0x00, 0x00);
-        //VL_IIC_Write_1Byte(address,0x91, stop_variable);
-        VL_IIC_Write_1Byte(address,0x00, 0x01);
-        VL_IIC_Write_1Byte(address,0xFF, 0x00);
-        VL_IIC_Write_1Byte(address,0x80, 0x00);
+        VL_IIC_Write_1Byte_CH2(address,0x80, 0x01);
+        VL_IIC_Write_1Byte_CH2(address,0xFF, 0x01);
+        VL_IIC_Write_1Byte_CH2(address,0x00, 0x00);
+        //VL_IIC_Write_1Byte_CH2(address,0x91, stop_variable);
+        VL_IIC_Write_1Byte_CH2(address,0x00, 0x01);
+        VL_IIC_Write_1Byte_CH2(address,0xFF, 0x00);
+        VL_IIC_Write_1Byte_CH2(address,0x80, 0x00);
 
 
-        VL_IIC_Write_1Byte(address, VL53L0X_REG_SYSRANGE_START,0x01);
+        VL_IIC_Write_1Byte_CH2(address, VL53L0X_REG_SYSRANGE_START,0x01);
         int val = 0;
         int cnt = 0;
         while (cnt < 100) { // 1 second waiting time max
             delay(10);
-                ret= VL_IIC_Read_1Byte(address,VL53L0X_REG_RESULT_RANGE_STATUS,&val1);
-            if(ret) printf("read failed \n");        
+                ret= VL_IIC_Read_1Byte_CH2(address,VL53L0X_REG_RESULT_RANGE_STATUS,&val1);
+           // if(ret) printf("2 read failed \n");        
             if (val1 & 0x01) break;
             cnt++;
         }
        // if (val1 & 0x01) printf("ready \n"); else printf("not ready \n");
         char gbuf[16];
 
-        VL_I2C_Read_nByte(address, 0x14,gbuf, 12);
+        VL_I2C_Read_nByte_ch2(address, 0x14,gbuf, 12);
         uint16_t acnt = makeuint16(gbuf[7], gbuf[6]);
         uint16_t scnt = makeuint16(gbuf[9], gbuf[8]);
         uint16_t dist = makeuint16(gbuf[11], gbuf[10]);
