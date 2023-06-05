@@ -21,7 +21,9 @@ easymqOs_lidarA1_node    slamtech lidar a1 publish distance   发布雷达360度
 easymqOs_opticalFlow_gl9306  GL9306光流传感器 串口接收 用于定位 调试中
 easymqos_waypoint_save   receive gps waypoints dats and save 接收规划路径的航点并保存     
 easymqOs_collect_datas   收集里程计和雷达数据 用于离线建图    
-easymqOs_detectDistance_vl53  收集 vl53l0的测距数据用于神经网络避障     
+easymqOs_detectDistance_vl53  收集 vl53l0的测距数据用于神经网络避障        
+easymqOs_detectDistance_sonaras  收集 sonars超声波的测距数据用于神经网络避障 
+easymqOs_AStar_planning    A star path planning ,规划路径并发布路径信息
 ### pytorch节点  
 neural_network_avoidance  采集正前方5个角度的激光雷达测距消息 使用神经网络完成避障功能  
 
