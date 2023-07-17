@@ -59,3 +59,9 @@ git clone this code   并查找libmosquitto.so 例如：
 cd  路径  
 make   
 分别执行对应的程序   
+#  建图效果   
+[!img](https://github.com/horo2016/easyMQOS/blob/main/img/1.png)   
+[!img](https://github.com/horo2016/easyMQOS/blob/main/img/712my1.png)     
+[!imng](https://github.com/horo2016/easyMQOS/blob/main/img/712my2.png)    
+[!img](https://github.com/horo2016/easyMQOS/blob/main/img/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20230712173505.png)    
+[!img](https://github.com/horo2016/easyMQOS/blob/main/img/%E4%B8%AD%E5%80%BC%E6%BB%A4%E6%B3%A2.png)
