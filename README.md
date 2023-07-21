@@ -42,6 +42,8 @@ traject 显示雷达点云、图片流等
 #  安装使用
 首先在树莓派或者其他的Linux系统安装 mosquito   
 
+###  ubuntu  
+
 sudo apt-get install mosquitto-dev   
 sudo apt-get install mosquitto-clients   
 然后在 /etc/mosquitto/mosquitto.conf 添加支持wensocket的协议和端口   
@@ -59,6 +61,9 @@ git clone this code   并查找libmosquitto.so 例如：
 cd  路径  
 make   
 分别执行对应的程序   
+###  其他Linux系统   
+源码编译 mosquitto   
+
 #  建图效果   
 ![img](https://github.com/horo2016/easyMQOS/blob/main/img/1.png)   
 ![img](https://github.com/horo2016/easyMQOS/blob/main/img/712my1.png)     
