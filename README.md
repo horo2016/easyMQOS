@@ -18,7 +18,7 @@ easymqOs_base_OdomControl  和底盘stm32通信的节点使用串口和自定义
 easymqOs_odom_imu_fusion   多传感器的融合航向角和位移   发布最终的位移和航向角度   
 easymqOs_gpsKalmanfilter   gps filter node publish gps node   gps滤波节点并发布     
 easymqOs_lidarA1_node    slamtech lidar a1 publish distance   发布雷达360度的距离    
-easymqOs_opticalFlow_gl9306  GL9306光流传感器 串口接收 用于定位 调试中
+easymqOs_opticalFlow_gl9306  GL9306光流传感器 串口接收 用于定位 调试中    
 easymqos_waypoint_save   receive gps waypoints dats and save 接收规划路径的航点并保存     
 easymqOs_collect_datas   收集里程计和雷达数据 用于离线建图    
 easymqOs_detectDistance_vl53  收集 vl53l0的测距数据用于神经网络避障        
