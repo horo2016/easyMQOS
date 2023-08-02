@@ -64,7 +64,10 @@ cd  路径
 make   
 分别执行对应的程序   
 ###  其他Linux系统   
-源码编译 mosquitto   
+源码编译 mosquitto     
+ # B站视频    
+
+ https://www.bilibili.com/video/BV1R8411m7b5/?spm_id_from=333.999.0.0&vd_source=2056365a3e689ccb27ee312065d1714c
 
 #  建图效果   
 ![img](https://github.com/horo2016/easyMQOS/blob/main/img/1.png)   
