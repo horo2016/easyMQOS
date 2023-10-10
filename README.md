@@ -64,7 +64,10 @@ cd  路径
 make   
 分别执行对应的程序   
 ###  其他Linux系统   
-源码编译 mosquitto       
+源码编译 mosquitto   
+# web 的安装   
+跳转到web文件夹查看  
+
 # 硬件   
 ![img](https://github.com/horo2016/easyMQOS/blob/main/img/robot.png)     
 ![img](https://github.com/horo2016/easyMQOS/blob/main/img/dianjiqudognmban.png)     
