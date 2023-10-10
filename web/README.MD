@@ -1,16 +1,15 @@
 #  说明
-该程序配合mqtt使用 ；  
-js 需要结合本包中的paho-mqtt 一起使用。
-在树莓派或者其他派终端安装mqtt 工具包，web可以使用boa 容器。  
+该程序配合js版本的mqtt使用 ；  
+即需要结合本包中的js文件夹中的paho-mqtt 一起使用。
+在树莓派或者其他派终端web可以使用boa 容器。  
+web 的mqtt使用websockets  协议，8083端口。
+在/etc/mosquitto.conf 添加：
 
-首先在树莓派或者其他的Linux系统安装 mosquito  
-
-sudo apt-get install mosquitto-dev  
-sudo apt-get install mosquitto-clients  
-然后在 /etc/mosquitto/mosquitto.conf  添加支持wensocket的协议和端口  
 port 1883  
 listener 8083  
 protocol websockets  
+
+#  安装说明   
 
 请在浏览器打开每个功能模块下的 xx.html 正常使用。  
 使用前使用notepad++  编辑xx.html中的hostip 地址改成你的树莓派 或者 orangepi  nanopi的IP地址。  
