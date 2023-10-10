@@ -1,6 +1,7 @@
 #  说明
-该程序配合mqtt使用 ；
-在树莓派或者其他派终端安装mqtt 工具包。  
+该程序配合mqtt使用 ；  
+js 需要结合本包中的paho-mqtt 一起使用。
+在树莓派或者其他派终端安装mqtt 工具包，web可以使用boa 容器。  
 
 首先在树莓派或者其他的Linux系统安装 mosquito  
 
@@ -14,6 +15,12 @@ protocol websockets
 请在浏览器打开每个功能模块下的 xx.html 正常使用。  
 使用前使用notepad++  编辑xx.html中的hostip 地址改成你的树莓派 或者 orangepi  nanopi的IP地址。保存后使用   
 浏览器打开后才能正常连接。
+例如，找到 trajectmap 文件夹，使用文本编辑器打开 index_indoor.html   
+找到  MQTTconnect() 函数，将serverip 参数改成mqtt 的serverIp地址。  
+然后双击使用网页打开，查看是否正常连接（出现绿色背景）  
+
+
+
 
 目前能用的功能有  
 # 指南针功能  
