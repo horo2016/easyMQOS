@@ -72,6 +72,9 @@ make
 # 硬件   
 ![img](https://github.com/horo2016/easyMQOS/blob/main/img/robot.png)     
 ![img](https://github.com/horo2016/easyMQOS/blob/main/img/dianjiqudognmban.png)     
+stm32 源码和PCB 链接 在 github opencrobotics 中    
+https://github.com/horo2016/openCRobotics/blob/master/%E7%94%B5%E6%9C%BA%E9%80%9F%E5%BA%A6%E9%97%AD%E7%8E%AF%E6%8E%A7%E5%88%B6RCT6.rar    
+
 
  # B站视频    
 
