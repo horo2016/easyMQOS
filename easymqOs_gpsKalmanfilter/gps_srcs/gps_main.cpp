@@ -368,7 +368,7 @@ int gps_Data_Deal(unsigned char *datv,int length)
 
      parseGpsBuffer();
     // printGpsBuffer();
-
+  return 0;
 
 }
 void set_callback(Location gpsval,float h,float vel, void(*pfunc)(Location ,float,float))
