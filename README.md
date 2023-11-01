@@ -44,14 +44,19 @@ traject 显示雷达点云、图片流等
 #  安装使用
 首先在树莓派或者其他的Linux系统安装 mosquito   
 
-###  ubuntu  
+###  ubuntu  机器人终端
 
 sudo apt-get install mosquitto-dev   
 sudo apt-get install mosquitto-clients   
 然后在 /etc/mosquitto/mosquitto.conf 添加支持wensocket的协议和端口   
 port 1883   
 listener 8083  
-protocol websockets  
+protocol websockets    
+allow_anonymous true #2.0.11 高版本
+注意：   
+mosquitto version 1.4.15 不需要认证     
+mosquitto version 2.0.11 需要连接认证       
+
 
 下一步  
 git clone this code   并查找libmosquitto.so 例如：   
