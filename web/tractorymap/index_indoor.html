@@ -59,7 +59,9 @@ border:solid blue 1px;font-size:12px; position:relative;left:20px;top:20px;"></c
 <input type="file" name="fileName" id="fileName" onchange="fileSelected(this.value);" />离线保存的路径激光等信息
 	<br>
 
-
+<input type='text' id='devid' value="192.168.3.19" />
+<button id="btnconnect" onclick="connectserver()">连接机器人</button>
+<br>
 <input type=button id=mode2 value="自主建图"> 机器人随机运动并使用神经网络避障.
 <br>
 <input type=button id=mode1 value="手动建图"> 手动控制运动
@@ -1025,6 +1027,12 @@ function redraw()
 		
 		 MQTTconnect();
 		 var test_cnt =0;
+		 
+		 function connectserver() {
+		
+			 serverip =document.getElementById("devid").value;
+			 MQTTconnect();
+			}
 		function MQTTconnect(){
 			//devid =document.getElementById("devid").value;
 			topic =  '/sensors/odomcombine';
