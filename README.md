@@ -15,6 +15,7 @@ easy_mqOS 是我仿照ROS 搭建的基于MQTT的简易机器人分布式开发�
 
 # 说明
 每个对应的节点下有对应的说明请仔细阅读  
+xxx22表示ubuntu22.04的系统
 ### 本工程终端 的节点  
 easymqOs_IMU_node   IMU的发布节点   
 easymqOs_base_OdomControl  和底盘stm32通信的节点使用串口和自定义的通信协议 ，包头0xaa       
